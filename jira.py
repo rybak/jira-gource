@@ -16,15 +16,15 @@ min_key = 1
 max_key = 100
 
 
-def get_issue_url(issue_key):
+def get_issue_url(issue_key: str) -> str:
     return jira_url + '/rest/api/2/issue/' + issue_key
 
 
-def json_path(title):
+def json_path(title: str) -> str:
     return "json_dump/" + title + ".json"
 
 
-def load_json(title):
+def load_json(title: str):
     file = json_path(title)
     try:
         with open(file, 'r') as jf:
@@ -34,7 +34,7 @@ def load_json(title):
     return None
 
 
-def download_issue(issue_key):
+def download_issue(issue_key: str):
     result = None
     issue_url = get_issue_url(issue_key)
     params = {
@@ -52,6 +52,7 @@ def download_issue(issue_key):
             if r.status_code == 401:
                 print("Wrong password")
                 reset_auth()
+                # go into while True again, ask for password one more time
                 continue
             if r.status_code == 404:
                 print("No issue ", issue_key)
@@ -84,6 +85,7 @@ for i in range(min_key, max_key):
     if key not in tickets_json:
         issue_json = download_issue(key)
         if issue_json is None:
+            # could not download issue
             continue
         # store the ticket
         tickets_json[key] = issue_json
