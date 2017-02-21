@@ -80,17 +80,28 @@ tickets_json = load_json(tickets_title)
 if tickets_json is None:
     tickets_json = {}
 
+print("Already saved: {0} tickets".format(len(tickets_json)))
+
 for i in range(min_key, max_key):
     key = project + '-' + str(i)
-    if key not in tickets_json:
-        issue_json = download_issue(key)
-        if issue_json is None:
-            # could not download issue
-            continue
-        # store the ticket. Use 'JIRA' as key for the json part of the JIRA's response
-        tickets_json[key]['JIRA'] = issue_json
-        # show the first item in the history to the user
-        pretty_print(get_history(issue_json)[0])
+    try:
+        if key not in tickets_json:
+            issue_json = download_issue(key)
+            if issue_json is None:
+                # could not download issue
+                continue
+            # store the ticket. Use 'JIRA' as key for the json part of the JIRA's response
+            tickets_json[key] = {}
+            tickets_json[key]['JIRA'] = issue_json
+            # show the first item in the history to the user
+            pretty_print(get_history(issue_json)[0]['created'])
+            tickets_json[key]['downloaded'] = True
+    except KeyboardInterrupt:
+        if key in tickets_json:
+            if 'downloaded' not in tickets_json[key]:
+                tickets_json.pop(key, None)
+        print("Interrupted by the user")
+        break
 
 
 def save_json(title: str, json_obj):
@@ -99,6 +110,9 @@ def save_json(title: str, json_obj):
 
 
 # store all the tickets
+print("Total number of tickets: {0}".format(len(tickets_json)))
+print("Saving " + json_path(tickets_title))
 save_json(tickets_title, tickets_json)
+print("Saved!")
 
 
