@@ -20,26 +20,22 @@ def get_issue_url(issue_key):
     return jira_url + '/rest/api/2/issue/' + issue_key
 
 
-def json_path(issue_key):
-    return "json_dump/" + issue_key + ".json"
+def json_path(title):
+    return "json_dump/" + title + ".json"
 
 
-def load_json(filename):
+def load_json(title):
+    file = json_path(title)
     try:
-        with open(filename, 'r') as json_file:
-            return json.load(json_file)
+        with open(file, 'r') as jf:
+            return json.load(jf)
     except OSError:
-        print("OSError while reading file: " + filename)
+        print("OSError while reading file: " + file)
     return None
 
 
 def download_issue(issue_key):
-    filename = json_path(issue_key)
     result = None
-    if os.path.exists(filename):
-        # already downloaded
-        result = load_json(filename)
-        return result
     issue_url = get_issue_url(issue_key)
     params = {
         "fields": "key,summary",
@@ -64,20 +60,8 @@ def download_issue(issue_key):
             print("url: ", issue_url)
             print("Request successful")
             result = r.json()
-            try:
-                with open(filename, 'w') as issue_json_file:
-                    json.dump(result, issue_json_file)
-            except OSError as err:
-                print("Error during dumping of ticket ", issue_key)
-                print(err)
-            except:
-                print("Unexpected error:", sys.exc_info()[0])
-                raise
-            else:
-                print("File written: ", issue_json_file)
             if DEBUG:
                 print(str(json.dumps(r.json(), indent=4, separators=(',', ': '))))
-
             break  # whatever, still can return the json
     return result
 
@@ -90,11 +74,29 @@ def get_history(issue_json_obj):
     return issue_json_obj['changelog']['histories']
 
 
+tickets_title = project + '-tickets'
+tickets_json = load_json(tickets_title)
+if tickets_json is None:
+    tickets_json = {}
+
 for i in range(min_key, max_key):
-    key = project + "-" + str(i)
-    issue_json = download_issue(key)
-    if issue_json is None:
-        continue
-    pretty_print(get_history(issue_json)[0])
+    key = project + '-' + str(i)
+    if key not in tickets_json:
+        issue_json = download_issue(key)
+        if issue_json is None:
+            continue
+        # store the ticket
+        tickets_json[key] = issue_json
+        # show the first item in the history to the user
+        pretty_print(get_history(issue_json)[0])
+
+
+def save_json(title: str, json_obj):
+    with open(json_path(title), 'w') as f:
+        json.dump(json_obj, f)
+
+
+# store all the tickets
+save_json(tickets_title, tickets_json)
 
 
