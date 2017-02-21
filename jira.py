@@ -87,8 +87,8 @@ for i in range(min_key, max_key):
         if issue_json is None:
             # could not download issue
             continue
-        # store the ticket
-        tickets_json[key] = issue_json
+        # store the ticket. Use 'JIRA' as key for the json part of the JIRA's response
+        tickets_json[key]['JIRA'] = issue_json
         # show the first item in the history to the user
         pretty_print(get_history(issue_json)[0])
 
