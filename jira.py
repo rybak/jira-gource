@@ -2,6 +2,7 @@
 
 import os
 import sys
+import time
 
 import requests
 import json
@@ -81,6 +82,21 @@ if tickets_json is None:
     tickets_json = {}
 
 print("Already saved: {0} tickets".format(len(tickets_json)))
+NETWORK_ERROR_WAIT_DELAY = 5  # five seconds
+
+
+def clear_key(k):
+    if k in tickets_json:
+        if 'downloaded' not in tickets_json[k]:
+            tickets_json.pop(k, None)
+
+
+def get_history_or(issue_json_obj, default_value="Empty history") -> str:
+    history = get_history(issue_json_obj)
+    if len(history) == 0:
+        return default_value
+    return history[0]['created']
+
 
 for i in range(min_key, max_key):
     key = project + '-' + str(i)
@@ -94,13 +110,21 @@ for i in range(min_key, max_key):
             tickets_json[key] = {}
             tickets_json[key]['JIRA'] = issue_json
             # show the first item in the history to the user
-            pretty_print(get_history(issue_json)[0]['created'])
+            pretty_print(get_history_or(issue_json))
             tickets_json[key]['downloaded'] = True
     except KeyboardInterrupt:
-        if key in tickets_json:
-            if 'downloaded' not in tickets_json[key]:
-                tickets_json.pop(key, None)
+        clear_key(key)
         print("Interrupted by the user")
+        break
+    except requests.exceptions.ConnectionError as ce:
+        clear_key(key)
+        print("Connection error: ", ce)
+        print("Waiting for {0} seconds...".format(NETWORK_ERROR_WAIT_DELAY))
+        time.sleep(NETWORK_ERROR_WAIT_DELAY)
+        print("Trying again...")
+    except Exception as e:
+        print("Unexpected exception: ", e)
+        print("Bailing out")
         break
 
 
