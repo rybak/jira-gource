@@ -49,7 +49,7 @@ os.chdir(repo_path)
 #     exit(1)
 
 tickets_to_process = []
-for i in range(18000, 18010):
+for i in range(jira.min_key, jira.max_key):
     key = jira.project + "-" + str(i)
     if key not in jira.tickets_json:
         continue
