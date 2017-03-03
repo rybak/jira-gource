@@ -87,6 +87,19 @@ for tk in sorted(changes):
     if ret != 0:
         print("commit failed")
         break
+    # check if `h` is the last change on the `key` ticket
+    last_change = jira.get_history(jira.tickets_json[key]['JIRA'])[-1]
+    if last_change['created'] == timestamp:
+        # if h is the last change - delete the ticket file and commit again
+        # h == last_change
+        ret = call(['git', 'rm', key])
+        if ret != 0:
+            print("rm failed")
+            break
+        ret = create_commit(name, email, iso_time, "last change {k}".format(k=key))
+        if ret != 0:
+            print("commit failed")
+            break
 
 with open("names.txt", "a") as f:
     f.write("\n".join(names))
