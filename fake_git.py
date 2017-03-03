@@ -83,7 +83,7 @@ for tk in sorted(changes):
     if ret != 0:
         print("add failed")
         break
-    ret = create_commit(name, email, iso_time, "change")
+    ret = create_commit(name, email, iso_time, "change {k}".format(k=key))
     if ret != 0:
         print("commit failed")
         break
