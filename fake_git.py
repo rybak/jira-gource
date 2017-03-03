@@ -67,10 +67,12 @@ for key in tickets_to_process:
         h['ticket'] = key
         changes[timestamp + key] = h
 
+names = set()
 for tk in sorted(changes):
     h = changes[tk]
     key = h['ticket']
     name = h['author']['displayName']
+    names.add(name)
     email = h['author']['emailAddress']
     timestamp = h['created']
     iso_time = ISO.parse(timestamp)
@@ -85,4 +87,7 @@ for tk in sorted(changes):
     if ret != 0:
         print("commit failed")
         break
+
+with open("names.txt", "a") as f:
+    f.write("\n".join(names))
 
