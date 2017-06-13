@@ -5,14 +5,6 @@ import jira
 
 
 def create_commit(committer_name, committer_email, timestamp, commit_message):
-    is_git_repo = is_current_dir_git_repo()
-    if os.path.basename(os.getcwd()) != "temp_repo":
-        raise Exception("Wrong repo")
-    if not is_git_repo:
-        print("Trying to create commit")
-        print("Not a git repo")
-        print("Bailing out")
-        return -42
     os.environ["GIT_COMMITTER_NAME"] = committer_name
     os.environ["GIT_AUTHOR_NAME"] = committer_name
     os.environ["GIT_COMMITTER_EMAIL"] = committer_email
@@ -44,9 +36,6 @@ def create_repo(path: str):
 repo_path = os.path.join(os.path.expanduser("~"), 'temp_repo')
 os.chdir(repo_path)
 
-# if not create_repo(repo_dir):
-#     print("Failed to create git repo")
-#     exit(1)
 
 tickets_to_process = []
 for i in range(jira.min_key, jira.max_key):
