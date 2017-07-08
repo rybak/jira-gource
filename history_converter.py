@@ -2,6 +2,8 @@ import dateutil.parser as iso
 
 import jira
 
+HIST_CONV_DEBUG = False
+
 
 def convert_history(modifications, create_modification, create_last_modification):
     names = set()
@@ -17,7 +19,8 @@ def convert_history(modifications, create_modification, create_last_modification
             iso_date = iso_time.date()
             if iso_date in jira.skip_dates:
                 continue
-            print("{k}: @{t}: {n} <{e}>".format(k=key, t=iso_time, n=name, e=email))
+            if HIST_CONV_DEBUG:
+                print("{k}: @{t}: {n} <{e}>".format(k=key, t=iso_time, n=name, e=email))
 
             if not create_modification(key, name, email, iso_time):
                 break
@@ -31,6 +34,7 @@ def convert_history(modifications, create_modification, create_last_modification
         print("Interrupted by user. Stopping...")
     except Exception as e:
         print("Unexpected exception", e)
+        print("NONE" if key is None else key)
         print("Bailing out")
     print("Saving names of committers")
     # append, to avoid any data loss. Just `sort -u names.txt` later.

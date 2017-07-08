@@ -11,12 +11,12 @@ from my_auth import *
 project = "<PROJECT>"
 my_user_name = "<USERNAME>"
 jira_url = "<URL>"
-DEBUG = False
 min_key = 1
 max_key = 100
 skip_dates = {
     date(2006, 12, 18),
 }
+JIRA_DEBUG = False
 
 
 def get_issue_url(issue_key: str) -> str:
@@ -44,6 +44,7 @@ def download_issue(issue_key: str):
         "fields": "key,summary",
         "expand": "changelog"
     }
+    print("Downloading: ", issue_key)
     while True:
         r = requests.get(issue_url,
                          params=params,
@@ -61,10 +62,11 @@ def download_issue(issue_key: str):
                 print("No issue ", issue_key)
             break
         else:
-            print("url: ", issue_url)
+            if JIRA_DEBUG:
+                print("url: ", issue_url)
             print("Request successful")
             result = r.json()
-            if DEBUG:
+            if JIRA_DEBUG:
                 print(str(json.dumps(r.json(), indent=4, separators=(',', ': '))))
             break  # whatever, still can return the json
     return result
@@ -147,7 +149,8 @@ for i in range(min_key, max_key):
     if key not in tickets_json:
         continue
     ticket_json = tickets_json[key]['JIRA']
-    print("Ticket : " + key)
+    if JIRA_DEBUG:
+        print("Ticket : " + key)
     # jira.pretty_print(jira.get_history(ticket_json))
     tickets_to_process.append(key)
 
