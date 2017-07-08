@@ -3,11 +3,11 @@ import dateutil.parser as iso
 import jira
 
 
-def convert_history(sorted_modifications, create_modification, create_last_modification):
+def convert_history(modifications, create_modification, create_last_modification):
     names = set()
     try:
-        for tk in sorted_modifications:
-            h = sorted_modifications[tk]
+        for tk in sorted(modifications):
+            h = modifications[tk]
             key = h['ticket']
             name = h['author']['displayName']
             names.add(name)

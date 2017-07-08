@@ -155,5 +155,4 @@ for key in tickets_to_process:
         timestamp = h['created']
         h['ticket'] = key
         changes[timestamp + key] = h
-sorted_changes = sorted(changes)
 
