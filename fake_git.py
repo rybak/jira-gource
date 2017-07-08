@@ -43,3 +43,15 @@ def create_modification(filename, author_name, author_email, timestamp):
         print("commit failed")
         return False
     return True
+
+
+def create_last_modification(filename, author_name, author_email, timestamp):
+    ret = call(['git', 'rm', filename])
+    if ret != 0:
+        print("rm failed")
+        return False
+    ret = create_commit(author_name, author_email, timestamp, "last change {k}".format(k=filename))
+    if ret != 0:
+        print("commit failed")
+        return False
+    return True

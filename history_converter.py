@@ -1,5 +1,4 @@
 import os
-from subprocess import call
 
 import dateutil.parser as iso
 
@@ -28,15 +27,7 @@ try:
         # check if `h` is the last change on the `key` ticket
         last_change = jira.get_history(jira.tickets_json[key]['JIRA'])[-1]
         if last_change['created'] == timestamp:
-            # if h is the last change - delete the ticket file and commit again
-            # h == last_change
-            ret = call(['git', 'rm', key])
-            if ret != 0:
-                print("rm failed")
-                break
-            ret = fake_git.create_commit(name, email, iso_time, "last change {k}".format(k=key))
-            if ret != 0:
-                print("commit failed")
+            if not fake_git.create_last_modification(key, name, email, iso_time):
                 break
 except KeyboardInterrupt:
     print("Interrupted by user. Stopping...")
