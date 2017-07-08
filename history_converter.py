@@ -11,8 +11,8 @@ os.chdir(repo_path)
 
 names = set()
 try:
-    for tk in sorted(jira.changes):
-        h = jira.changes[tk]
+    for tk in jira.sorted_changes:
+        h = jira.sorted_changes[tk]
         key = h['ticket']
         name = h['author']['displayName']
         names.add(name)
