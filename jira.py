@@ -5,6 +5,7 @@ import time
 import requests
 import json
 from datetime import date
+import dateutil.parser as iso
 
 from my_auth import *
 
@@ -130,6 +131,17 @@ for i in range(min_key, max_key):
         print("Unexpected exception: ", e)
         print("Bailing out")
         break
+    issue_json = tickets_json[key]['JIRA']
+    issue_history = get_history(issue_json)
+    toRemove = None
+    for changelog_entry in issue_history:
+        timestamp = changelog_entry['created']
+        iso_date = iso.parse(timestamp).date()
+        if iso_date in skip_dates:
+            toRemove = changelog_entry
+            break
+    if toRemove is not None:
+        issue_history.remove(toRemove)
 
 
 def save_json(title: str, json_obj):
