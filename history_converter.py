@@ -14,6 +14,9 @@ def convert_history(modifications, create_modification, create_last_modification
             email = h['author']['emailAddress']
             timestamp = h['created']
             iso_time = iso.parse(timestamp)
+            iso_date = iso_time.date()
+            if iso_date in jira.skip_dates:
+                continue
             print("{k}: @{t}: {n} <{e}>".format(k=key, t=iso_time, n=name, e=email))
 
             if not create_modification(key, name, email, iso_time):

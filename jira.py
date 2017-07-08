@@ -4,6 +4,7 @@ import time
 
 import requests
 import json
+from datetime import date
 
 from my_auth import *
 
@@ -13,6 +14,9 @@ jira_url = "<URL>"
 DEBUG = False
 min_key = 1
 max_key = 100
+skip_dates = {
+    date(2006, 12, 18),
+}
 
 
 def get_issue_url(issue_key: str) -> str:
