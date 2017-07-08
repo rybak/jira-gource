@@ -10,30 +10,36 @@ repo_path = os.path.join(os.path.expanduser("~"), 'temp_repo')
 os.chdir(repo_path)
 
 names = set()
-try:
-    for tk in jira.sorted_changes:
-        h = jira.sorted_changes[tk]
-        key = h['ticket']
-        name = h['author']['displayName']
-        names.add(name)
-        email = h['author']['emailAddress']
-        timestamp = h['created']
-        iso_time = iso.parse(timestamp)
-        print("{k}: @{t}: {n} <{e}>".format(k=key, t=iso_time, n=name, e=email))
 
-        if not fake_git.create_modification(key, name, email, iso_time):
-            break
 
-        # check if `h` is the last change on the `key` ticket
-        last_change = jira.get_history(jira.tickets_json[key]['JIRA'])[-1]
-        if last_change['created'] == timestamp:
-            if not fake_git.create_last_modification(key, name, email, iso_time):
+def convert_history(sorted_modifications, create_modification, create_last_modification):
+    try:
+        for tk in sorted_modifications:
+            h = sorted_modifications[tk]
+            key = h['ticket']
+            name = h['author']['displayName']
+            names.add(name)
+            email = h['author']['emailAddress']
+            timestamp = h['created']
+            iso_time = iso.parse(timestamp)
+            print("{k}: @{t}: {n} <{e}>".format(k=key, t=iso_time, n=name, e=email))
+
+            if not create_modification(key, name, email, iso_time):
                 break
-except KeyboardInterrupt:
-    print("Interrupted by user. Stopping...")
-except Exception as e:
-    print("Unexpected exception", e)
-    print("Bailing out")
+
+            # check if `h` is the last change on the `key` ticket
+            last_change = jira.get_history(jira.tickets_json[key]['JIRA'])[-1]
+            if last_change['created'] == timestamp:
+                if not create_last_modification(key, name, email, iso_time):
+                    break
+    except KeyboardInterrupt:
+        print("Interrupted by user. Stopping...")
+    except Exception as e:
+        print("Unexpected exception", e)
+        print("Bailing out")
+
+
+convert_history(jira.sorted_changes, fake_git.create_modification, fake_git.create_last_modification)
 
 print("Saving names of committers")
 # append, to avoid any data loss. Just `sort -u names.txt` later.
