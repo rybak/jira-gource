@@ -39,7 +39,11 @@ def convert_history(sorted_modifications, create_modification, create_last_modif
         print("Bailing out")
 
 
-convert_history(jira.sorted_changes, fake_git.create_modification, fake_git.create_last_modification)
+def convert_history_to_git(sorted_modifications):
+    convert_history(sorted_modifications, fake_git.create_modification, fake_git.create_last_modification)
+
+
+convert_history_to_git(jira.sorted_changes)
 
 print("Saving names of committers")
 # append, to avoid any data loss. Just `sort -u names.txt` later.
