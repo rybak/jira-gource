@@ -8,12 +8,17 @@ HIST_CONV_DEBUG = False
 def convert_history(modifications, create_modification, create_last_modification):
     print("Number of changes: ", len(modifications))
     print("Converting history...")
+    skipped = 0
     names = set()
     key = None
     try:
         for tk in sorted(modifications):
             h = modifications[tk]
             key = h['ticket']
+            if 'author' not in h:
+                skipped += 1
+                # skipping automated transitions of tickets, e.g. by Bitbucket pull-requests and similar
+                continue
             name = h['author']['displayName']
             names.add(name)
             email = h['author']['emailAddress']
@@ -36,6 +41,7 @@ def convert_history(modifications, create_modification, create_last_modification
         print("NONE" if key is None else key)
         print("Bailing out")
     print("Finished!")
+    print("Number of skipped changes = ", skipped)
     print("Saving names of committers")
     # append, to avoid any data loss. Just `sort -u names.txt` later.
     with open("names.txt", "a") as f:
