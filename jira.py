@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import time
+import os
 
 import requests
 import json
@@ -30,6 +31,8 @@ def json_path(title: str) -> str:
 
 def load_json(title: str):
     file = json_path(title)
+    print("Loading json: ", file)
+    print("Size of file: ", os.stat(file).st_size)
     try:
         with open(file, 'r') as jf:
             return json.load(jf)
@@ -129,6 +132,7 @@ for i in range(min_key, max_key):
         print("Trying again...")
     except Exception as e:
         print("Unexpected exception: ", e)
+        print("Key: ", key)
         print("Bailing out")
         break
     issue_json = tickets_json[key]['JIRA']

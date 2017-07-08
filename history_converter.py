@@ -6,7 +6,10 @@ HIST_CONV_DEBUG = False
 
 
 def convert_history(modifications, create_modification, create_last_modification):
+    print("Number of changes: ", len(modifications))
+    print("Converting history...")
     names = set()
+    key = None
     try:
         for tk in sorted(modifications):
             h = modifications[tk]
@@ -32,6 +35,7 @@ def convert_history(modifications, create_modification, create_last_modification
         print("Unexpected exception", e)
         print("NONE" if key is None else key)
         print("Bailing out")
+    print("Finished!")
     print("Saving names of committers")
     # append, to avoid any data loss. Just `sort -u names.txt` later.
     with open("names.txt", "a") as f:
