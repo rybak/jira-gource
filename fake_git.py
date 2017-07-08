@@ -30,3 +30,16 @@ def create_repo(path: str):
             print("Created git repo in the directory {0}".format(path))
             return True
 
+
+def create_modification(filename, author_name, author_email, timestamp):
+    with open(filename, 'a') as f:
+        f.write("Change by {n} @ {t}\n".format(n=author_name, t=timestamp))
+    ret = call(['git', 'add', filename])
+    if ret != 0:
+        print("add failed")
+        return False
+    ret = create_commit(author_name, author_email, timestamp, "change {k}".format(k=filename))
+    if ret != 0:
+        print("commit failed")
+        return False
+    return True

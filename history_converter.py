@@ -21,15 +21,8 @@ try:
         timestamp = h['created']
         iso_time = ISO.parse(timestamp)
         print("{k}: @{t}: {n} <{e}>".format(k=key, t=iso_time, n=name, e=email))
-        with open(key, 'a') as f:
-            f.write("Change by {n} @ {t}\n".format(n=name, t=iso_time))
-        ret = call(['git', 'add', key])
-        if ret != 0:
-            print("add failed")
-            break
-        ret = fake_git.create_commit(name, email, iso_time, "change {k}".format(k=key))
-        if ret != 0:
-            print("commit failed")
+
+        if not fake_git.create_modification(key, name, email, iso_time):
             break
 
         # check if `h` is the last change on the `key` ticket
