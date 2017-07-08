@@ -9,10 +9,9 @@ import fake_git
 repo_path = os.path.join(os.path.expanduser("~"), 'temp_repo')
 os.chdir(repo_path)
 
-names = set()
-
 
 def convert_history(sorted_modifications, create_modification, create_last_modification):
+    names = set()
     try:
         for tk in sorted_modifications:
             h = sorted_modifications[tk]
@@ -37,6 +36,10 @@ def convert_history(sorted_modifications, create_modification, create_last_modif
     except Exception as e:
         print("Unexpected exception", e)
         print("Bailing out")
+    print("Saving names of committers")
+    # append, to avoid any data loss. Just `sort -u names.txt` later.
+    with open("names.txt", "a") as f:
+        f.write("\n".join(names))
 
 
 def convert_history_to_git(sorted_modifications):
@@ -44,9 +47,4 @@ def convert_history_to_git(sorted_modifications):
 
 
 convert_history_to_git(jira.sorted_changes)
-
-print("Saving names of committers")
-# append, to avoid any data loss. Just `sort -u names.txt` later.
-with open("names.txt", "a") as f:
-    f.write("\n".join(names))
 
