@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 
-import os
-import sys
 import time
 
 import requests
@@ -92,10 +90,10 @@ def clear_key(k):
 
 
 def get_history_or(issue_json_obj, default_value="Empty history") -> str:
-    history = get_history(issue_json_obj)
-    if len(history) == 0:
+    history_json = get_history(issue_json_obj)
+    if len(history_json) == 0:
         return default_value
-    return history[0]['created']
+    return history_json[0]['created']
 
 
 for i in range(min_key, max_key):

@@ -1,7 +1,7 @@
 import os
 from subprocess import call
 
-import dateutil.parser as ISO
+import dateutil.parser as iso
 
 import jira
 import fake_git
@@ -19,7 +19,7 @@ try:
         names.add(name)
         email = h['author']['emailAddress']
         timestamp = h['created']
-        iso_time = ISO.parse(timestamp)
+        iso_time = iso.parse(timestamp)
         print("{k}: @{t}: {n} <{e}>".format(k=key, t=iso_time, n=name, e=email))
 
         if not fake_git.create_modification(key, name, email, iso_time):
