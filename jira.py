@@ -20,6 +20,16 @@ skip_dates = {
 }
 JIRA_DEBUG = False
 
+missing_file_path = "missing-tickets.txt"
+try:
+    with open(missing_file_path, 'r') as f:
+        missing_tickets = set(f.read().split("\n"))
+except OSError:
+    print("Could not read " + missing_file_path)
+    missing_tickets = set()
+print("Missing tickets count = ", len(missing_tickets))
+print("Missing tickets: ", ", ".join(sorted(missing_tickets)))
+
 
 def get_issue_url(issue_key: str) -> str:
     return jira_url + '/rest/api/2/issue/' + issue_key
@@ -48,6 +58,9 @@ def download_issue(issue_key: str):
         "fields": "key,summary",
         "expand": "changelog"
     }
+    if issue_key in missing_tickets:
+        print("Skipping missing ticket ", issue_key)
+        return None
     print("Downloading: ", issue_key)
     while True:
         r = requests.get(issue_url,
@@ -64,6 +77,7 @@ def download_issue(issue_key: str):
                 continue
             if r.status_code == 404:
                 print("No issue ", issue_key)
+                missing_tickets.add(issue_key)
             break
         else:
             if JIRA_DEBUG:
@@ -157,6 +171,11 @@ def save_json(title: str, json_obj):
 print("Total number of tickets: {0}".format(len(tickets_json)))
 print("Saving " + json_path(tickets_title))
 save_json(tickets_title, tickets_json)
+print("Saved!")
+
+print("Saving " + missing_file_path)
+with open(missing_file_path, "a") as f:
+    f.write("\n".join(missing_tickets))
 print("Saved!")
 
 tickets_to_process = []
