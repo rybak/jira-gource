@@ -1,13 +1,6 @@
-import os
-
 import dateutil.parser as iso
 
 import jira
-import fake_git
-
-
-repo_path = os.path.join(os.path.expanduser("~"), 'temp_repo')
-os.chdir(repo_path)
 
 
 def convert_history(sorted_modifications, create_modification, create_last_modification):
@@ -40,11 +33,3 @@ def convert_history(sorted_modifications, create_modification, create_last_modif
     # append, to avoid any data loss. Just `sort -u names.txt` later.
     with open("names.txt", "a") as f:
         f.write("\n".join(names))
-
-
-def convert_history_to_git(sorted_modifications):
-    convert_history(sorted_modifications, fake_git.create_modification, fake_git.create_last_modification)
-
-
-convert_history_to_git(jira.sorted_changes)
-

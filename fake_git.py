@@ -1,6 +1,9 @@
 import os
 from subprocess import call, STDOUT
 
+import history_converter
+import jira
+
 
 def create_commit(committer_name, committer_email, timestamp, commit_message):
     os.environ["GIT_COMMITTER_NAME"] = committer_name
@@ -55,3 +58,12 @@ def create_last_modification(filename, author_name, author_email, timestamp):
         print("commit failed")
         return False
     return True
+
+
+def convert_history_to_git(modifications):
+    history_converter.convert_history(modifications, create_modification, create_last_modification)
+
+
+repo_path = os.path.join(os.path.expanduser("~"), 'temp_repo')
+os.chdir(repo_path)
+convert_history_to_git(jira.changes)
