@@ -139,4 +139,22 @@ print("Saving " + json_path(tickets_title))
 save_json(tickets_title, tickets_json)
 print("Saved!")
 
+tickets_to_process = []
+for i in range(min_key, max_key):
+    key = project + '-' + str(i)
+    if key not in tickets_json:
+        continue
+    ticket_json = tickets_json[key]['JIRA']
+    print("Ticket : " + key)
+    # jira.pretty_print(jira.get_history(ticket_json))
+    tickets_to_process.append(key)
+
+changes = {}
+for key in tickets_to_process:
+    ticket_json = tickets_json[key]['JIRA']
+    history = get_history(ticket_json)
+    for h in history:
+        timestamp = h['created']
+        h['ticket'] = key
+        changes[timestamp + key] = h
 

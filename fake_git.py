@@ -36,30 +36,10 @@ def create_repo(path: str):
 repo_path = os.path.join(os.path.expanduser("~"), 'temp_repo')
 os.chdir(repo_path)
 
-
-tickets_to_process = []
-for i in range(jira.min_key, jira.max_key):
-    key = jira.project + "-" + str(i)
-    if key not in jira.tickets_json:
-        continue
-    ticket_json = jira.tickets_json[key]['JIRA']
-    print("Ticket : " + key)
-    # jira.pretty_print(jira.get_history(ticket_json))
-    tickets_to_process.append(key)
-
-changes = {}
-for key in tickets_to_process:
-    ticket_json = jira.tickets_json[key]['JIRA']
-    history = jira.get_history(ticket_json)
-    for h in history:
-        timestamp = h['created']
-        h['ticket'] = key
-        changes[timestamp + key] = h
-
 names = set()
 try:
-    for tk in sorted(changes):
-        h = changes[tk]
+    for tk in sorted(jira.changes):
+        h = jira.changes[tk]
         key = h['ticket']
         name = h['author']['displayName']
         names.add(name)
