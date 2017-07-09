@@ -41,11 +41,13 @@ def json_path(title: str) -> str:
 
 def load_json(title: str):
     file = json_path(title)
-    print("Loading json: ", file)
-    print("Size of file: ", os.stat(file).st_size)
     try:
+        print("Loading json: ", file)
+        print("Size of file: ", os.stat(file).st_size)
         with open(file, 'r') as jf:
             return json.load(jf)
+    except FileNotFoundError:
+        print("No file: " + file)
     except OSError:
         print("OSError while reading file: " + file)
     return None
