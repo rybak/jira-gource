@@ -65,30 +65,39 @@ def download_issue(issue_key: str):
         return None
     print("Downloading: ", issue_key)
     while True:
-        r = requests.get(issue_url,
-                         params=params,
-                         auth=get_auth(my_login=my_user_name, prompt_line="jira pass:"),
-                         verify=False)
-        if r.status_code != 200:
-            print(r)
-            print("Download failed for ticket ", issue_key)
-            if r.status_code == 401:
-                print("Wrong password")
-                reset_auth()
-                # go into while True again, ask for password one more time
-                continue
-            if r.status_code == 404:
-                print("No issue ", issue_key)
-                missing_tickets.add(issue_key)
+        try:
+            r = requests.get(issue_url,
+                             params=params,
+                             auth=get_auth(my_login=my_user_name, prompt_line="jira pass:"),
+                             verify=False)
+            if r.status_code != 200:
+                print(r)
+                print("Download failed for ticket ", issue_key)
+                if r.status_code == 401:
+                    print("Wrong password")
+                    reset_auth()
+                    # go into while True again, ask for password one more time
+                    continue
+                if r.status_code == 404:
+                    print("No issue ", issue_key)
+                    missing_tickets.add(issue_key)
+                break
+            else:
+                if JIRA_DEBUG:
+                    print("url: ", issue_url)
+                print("Request successful")
+                result = r.json()
+                if JIRA_DEBUG:
+                    print(str(json.dumps(r.json(), indent=4, separators=(',', ': '))))
+                break  # whatever, still can return the json
+        except requests.exceptions.ConnectionError as ce:
+            clear_key(key)
+            print("Connection error: ", ce)
+            print("Waiting for {0} seconds...".format(NETWORK_ERROR_WAIT_DELAY))
+            time.sleep(NETWORK_ERROR_WAIT_DELAY)
+            # print("Trying again...")
+            # might be useless to try again, return None
             break
-        else:
-            if JIRA_DEBUG:
-                print("url: ", issue_url)
-            print("Request successful")
-            result = r.json()
-            if JIRA_DEBUG:
-                print(str(json.dumps(r.json(), indent=4, separators=(',', ': '))))
-            break  # whatever, still can return the json
     return result
 
 
@@ -140,17 +149,14 @@ for i in range(min_key, max_key):
         clear_key(key)
         print("Interrupted by the user")
         break
-    except requests.exceptions.ConnectionError as ce:
-        clear_key(key)
-        print("Connection error: ", ce)
-        print("Waiting for {0} seconds...".format(NETWORK_ERROR_WAIT_DELAY))
-        time.sleep(NETWORK_ERROR_WAIT_DELAY)
-        print("Trying again...")
     except Exception as e:
+        clear_key(key)
         print("Unexpected exception: ", e)
         print("Key: ", key)
         print("Bailing out")
         break
+    if key not in tickets_json:
+        continue
     issue_json = tickets_json[key]['JIRA']
     issue_history = get_history(issue_json)
     toRemove = None
