@@ -163,15 +163,16 @@ for i in range(min_key, max_key):
         continue
     issue_json = tickets_json[key]['JIRA']
     issue_history = get_history(issue_json)
-    toRemove = None
+    toRemove = []
     for changelog_entry in issue_history:
         timestamp = changelog_entry['created']
         iso_date = iso.parse(timestamp).date()
+        if JIRA_DEBUG:
+            print(iso_date)
         if iso_date in skip_dates:
-            toRemove = changelog_entry
-            break
-    if toRemove is not None:
-        issue_history.remove(toRemove)
+            toRemove.append(changelog_entry)
+    for x in toRemove:
+        issue_history.remove(x)
 
 
 def save_json(title: str, json_obj):
@@ -198,6 +199,7 @@ for i in range(min_key, max_key):
     ticket_json = tickets_json[key]['JIRA']
     if JIRA_DEBUG:
         print("Ticket : " + key)
+        pretty_print(ticket_json)
     # jira.pretty_print(jira.get_history(ticket_json))
     tickets_to_process.append(key)
 
