@@ -187,8 +187,8 @@ save_json(tickets_title, tickets_json)
 print("Saved!")
 
 print("Saving " + missing_file_path)
-with open(missing_file_path, "a") as f:
-    f.write("\n".join(missing_tickets))
+with open(missing_file_path, "w") as f:
+    f.write("\n".join(sorted(missing_tickets)))
 print("Saved!")
 
 tickets_to_process = []
