@@ -78,6 +78,10 @@ def download_issue(issue_key: str):
                     reset_auth()
                     # go into while True again, ask for password one more time
                     continue
+                if r.status_code == 403:
+                    print("Need to enter CAPTCHA in the web JIRA interface")
+                    reset_auth()
+                    continue
                 if r.status_code == 404:
                     print("No issue ", issue_key)
                     missing_tickets.add(issue_key)
