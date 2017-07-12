@@ -3,7 +3,6 @@
 import time
 import requests
 import json
-
 from datetime import date
 from datetime import datetime
 import dateutil.parser as iso
@@ -97,6 +96,10 @@ def get_history(issue_json_obj):
     return issue_json_obj['changelog']['histories']
 
 
+def get_key_str(key_num: int) -> str:
+    return project + '-' + str(key_num)
+
+
 tickets_title = project + '-tickets'
 tickets_json = load_json(tickets_title)
 if tickets_json is None:
@@ -127,7 +130,7 @@ def get_first_timestamp_or(issue_json_obj, default_value="Empty history") -> str
 
 
 for i in range(min_key, max_key):
-    key = project + '-' + str(i)
+    key = get_key_str(i)
     try:
         if key not in tickets_json:
             issue_json = download_issue(key)
@@ -180,7 +183,7 @@ print("Saved!")
 
 tickets_to_process = []
 for i in range(min_key, max_key):
-    key = project + '-' + str(i)
+    key = get_key_str(i)
     if key not in tickets_json:
         continue
     issue_json = get_issue_json(key)
