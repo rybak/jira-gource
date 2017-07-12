@@ -182,6 +182,8 @@ for i in range(min_key, max_key):
             entries_to_remove.append(changelog_entry)
     for x in entries_to_remove:
         issue_history.remove(x)
+    if len(entries_to_remove) > 0:
+        print("Removed {0} changelog entries for ticket {1}".format(len(entries_to_remove), key))
 
 
 def save_json(title: str, json_obj):
