@@ -45,4 +45,4 @@ def convert_history(modifications, create_modification, create_last_modification
     print("Saving names of committers")
     # append, to avoid any data loss. Just `sort -u names.txt` later.
     with open("names.txt", "a") as f:
-        f.write("\n".join(names))
+        f.write('\n' + "\n".join(names))
