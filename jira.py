@@ -172,15 +172,15 @@ for i in range(min_key, max_key):
         continue
     issue_json = get_issue_json(key)
     issue_history = get_history(issue_json)
-    toRemove = []
+    entries_to_remove = []
     for changelog_entry in issue_history:
         timestamp = changelog_entry['created']
         iso_date = iso.parse(timestamp).date()
         if JIRA_DEBUG:
             print(iso_date)
         if iso_date in skip_dates:
-            toRemove.append(changelog_entry)
-    for x in toRemove:
+            entries_to_remove.append(changelog_entry)
+    for x in entries_to_remove:
         issue_history.remove(x)
 
 
