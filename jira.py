@@ -10,14 +10,8 @@ import dateutil.parser as iso
 from my_auth import *
 from my_json import json_path, load_json, save_json
 
-project = "<PROJECT>"
-my_user_name = "<USERNAME>"
-jira_url = "<URL>"
-min_key = 1
-max_key = 100
-skip_dates = {
-    date(2006, 12, 18),
-}
+import config
+
 JIRA_DEBUG = False
 
 missing_file_path = "missing-tickets.txt"
@@ -32,7 +26,7 @@ print("Missing tickets: ", ", ".join(sorted(missing_tickets)))
 
 
 def get_issue_url(issue_key: str) -> str:
-    return jira_url + '/rest/api/2/issue/' + issue_key
+    return config.jira_url + '/rest/api/2/issue/' + issue_key
 
 
 def download_issue(issue_key: str):
@@ -51,7 +45,7 @@ def download_issue(issue_key: str):
         try:
             r = requests.get(issue_url,
                              params=params,
-                             auth=get_auth(my_login=my_user_name, prompt_line="jira pass:"),
+                             auth=get_auth(my_login=config.my_user_name, prompt_line="jira pass:"),
                              verify=False)
             if r.status_code != 200:
                 print(r)
@@ -97,10 +91,10 @@ def get_history(issue_json_obj):
 
 
 def get_key_str(key_num: int) -> str:
-    return project + '-' + str(key_num)
+    return config.project + '-' + str(key_num)
 
 
-tickets_title = project + '-tickets'
+tickets_title = config.project + '-tickets'
 tickets_json = load_json(tickets_title)
 if tickets_json is None:
     tickets_json = {}
@@ -129,7 +123,7 @@ def get_first_timestamp_or(issue_json_obj, default_value="Empty history") -> str
     return history_json[0]['created']
 
 
-for i in range(min_key, max_key):
+for i in range(config.min_key, config.max_key):
     key = get_key_str(i)
     try:
         if key not in tickets_json:
@@ -163,7 +157,7 @@ for i in range(min_key, max_key):
         iso_date = iso.parse(timestamp).date()
         if JIRA_DEBUG:
             print(iso_date)
-        if iso_date in skip_dates:
+        if iso_date in config.skip_dates:
             entries_to_remove.append(changelog_entry)
     for x in entries_to_remove:
         issue_history.remove(x)
@@ -182,7 +176,7 @@ with open(missing_file_path, "w") as f:
 print("Saved!")
 
 tickets_to_process = []
-for i in range(min_key, max_key):
+for i in range(config.min_key, config.max_key):
     key = get_key_str(i)
     if key not in tickets_json:
         continue

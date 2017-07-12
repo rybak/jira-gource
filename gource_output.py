@@ -1,5 +1,6 @@
 import jira
 import history_converter
+import config
 
 DEBUG = False
 gource_list = []
@@ -24,7 +25,7 @@ def gource_last_modification(filename, author_name, author_email, timestamp) -> 
 
 history_converter.convert_history(jira.changes, gource_modification, gource_last_modification)
 
-gource_input_txt = "gource-input.txt"
+gource_input_txt = "gource-input-{0}.txt".format(config.project)
 try:
     with open(gource_input_txt, "w") as gource_file:
         gource_file.write("\n".join(gource_list))
