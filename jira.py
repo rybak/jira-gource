@@ -120,6 +120,13 @@ tickets_json = load_json(tickets_title)
 if tickets_json is None:
     tickets_json = {}
 
+
+def get_issue_json(k: str):
+    if k not in tickets_json:
+        return None
+    return tickets_json[k]['JIRA']
+
+
 print("Already saved: {0} tickets".format(len(tickets_json)))
 NETWORK_ERROR_WAIT_DELAY = 5  # five seconds
 
@@ -130,7 +137,7 @@ def clear_key(k):
             tickets_json.pop(k, None)
 
 
-def get_history_or(issue_json_obj, default_value="Empty history") -> str:
+def get_first_timestamp_or(issue_json_obj, default_value="Empty history") -> str:
     history_json = get_history(issue_json_obj)
     if len(history_json) == 0:
         return default_value
@@ -148,8 +155,8 @@ for i in range(min_key, max_key):
             # store the ticket. Use 'JIRA' as key for the json part of the JIRA's response
             tickets_json[key] = {}
             tickets_json[key]['JIRA'] = issue_json
-            # show the first item in the history to the user
-            pretty_print(get_history_or(issue_json))
+            # show the timestamp of the first item in the history to the user
+            pretty_print(get_first_timestamp_or(issue_json))
             tickets_json[key]['downloaded'] = True
     except KeyboardInterrupt:
         clear_key(key)
@@ -163,7 +170,7 @@ for i in range(min_key, max_key):
         break
     if key not in tickets_json:
         continue
-    issue_json = tickets_json[key]['JIRA']
+    issue_json = get_issue_json(key)
     issue_history = get_history(issue_json)
     toRemove = []
     for changelog_entry in issue_history:
@@ -198,17 +205,16 @@ for i in range(min_key, max_key):
     key = project + '-' + str(i)
     if key not in tickets_json:
         continue
-    ticket_json = tickets_json[key]['JIRA']
+    issue_json = get_issue_json(key)
     if JIRA_DEBUG:
         print("Ticket : " + key)
-        pretty_print(ticket_json)
-    # jira.pretty_print(jira.get_history(ticket_json))
+        pretty_print(issue_json)
     tickets_to_process.append(key)
 
 changes = {}
 for key in tickets_to_process:
-    ticket_json = tickets_json[key]['JIRA']
-    history = get_history(ticket_json)
+    issue_json = get_issue_json(key)
+    history = get_history(issue_json)
     for h in history:
         timestamp = h['created']
         h['ticket'] = key
