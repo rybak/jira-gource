@@ -6,6 +6,7 @@ import os
 import requests
 import json
 from datetime import date
+from datetime import datetime
 import dateutil.parser as iso
 
 from my_auth import *
@@ -63,6 +64,7 @@ def download_issue(issue_key: str):
     if issue_key in missing_tickets:
         print("Skipping missing ticket ", issue_key)
         return None
+    print(datetime.now())
     print("Downloading: ", issue_key)
     while True:
         try:
