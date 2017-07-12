@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 
 import time
-import os
-
 import requests
 import json
+
 from datetime import date
 from datetime import datetime
 import dateutil.parser as iso
 
 from my_auth import *
+from my_json import json_path, load_json, save_json
 
 project = "<PROJECT>"
 my_user_name = "<USERNAME>"
@@ -34,24 +34,6 @@ print("Missing tickets: ", ", ".join(sorted(missing_tickets)))
 
 def get_issue_url(issue_key: str) -> str:
     return jira_url + '/rest/api/2/issue/' + issue_key
-
-
-def json_path(title: str) -> str:
-    return "json_dump/" + title + ".json"
-
-
-def load_json(title: str):
-    file = json_path(title)
-    try:
-        print("Loading json: ", file)
-        print("Size of file: ", os.stat(file).st_size)
-        with open(file, 'r') as jf:
-            return json.load(jf)
-    except FileNotFoundError:
-        print("No file: " + file)
-    except OSError:
-        print("OSError while reading file: " + file)
-    return None
 
 
 def download_issue(issue_key: str):
@@ -184,12 +166,6 @@ for i in range(min_key, max_key):
         issue_history.remove(x)
     if len(entries_to_remove) > 0:
         print("Removed {0} changelog entries for ticket {1}".format(len(entries_to_remove), key))
-
-
-def save_json(title: str, json_obj):
-    with open(json_path(title), 'w') as f:
-        json.dump(json_obj, f)
-
 
 # store all the tickets
 print("Total number of tickets: {0}".format(len(tickets_json)))
