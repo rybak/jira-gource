@@ -14,6 +14,7 @@ import config
 
 JIRA_DEBUG = False
 
+# Note: user can manually add tickets to the missing-tickets.txt to skip them
 missing_file_path = "missing-tickets.txt"
 try:
     with open(missing_file_path, 'r') as f:
