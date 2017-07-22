@@ -1,5 +1,6 @@
 import json
 import os
+import time
 
 import myos
 
@@ -25,9 +26,21 @@ def load_json(title: str):
     return None
 
 
-def save_json(title: str, json_obj, pretty_print: bool = False):
+def current_milli_time() -> int:
+    return int(round(time.time() * 1000))
+
+
+def save_json(title: str, json_obj, pretty_print: bool = False, use_dumps: bool = True):
+    start = current_milli_time()
     with open(json_path(title), 'w') as f:
         if pretty_print:
             json.dump(json_obj, f, indent=4)
         else:
-            json.dump(json_obj, f)
+            if use_dumps:
+                # use dumps seems at least 5-6.5 times faster
+                s = json.dumps(json_obj, separators=(',', ':'))
+                f.write(s)
+            else:
+                json.dump(json_obj, f, separators=(',', ':'))
+        finish = current_milli_time()
+        print("Saving took {0} ms. {1}".format(int(finish - start), "String" if use_dumps else "File"))
