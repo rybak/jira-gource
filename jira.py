@@ -106,6 +106,23 @@ def get_first_timestamp_or(issue_json_obj, default_value="Empty history") -> str
     return history_json[0]['created']
 
 
+def filter_history(jira_key: str) -> None:
+    issue = get_issue_json(jira_key)
+    issue_history = get_history(issue)
+    entries_to_remove = []
+    for changelog_entry in issue_history:
+        t = changelog_entry['created']
+        iso_date = iso.parse(t).date()
+        if JIRA_DEBUG:
+            print(iso_date)
+        if iso_date in config.skip_dates:
+            entries_to_remove.append(changelog_entry)
+    for x in entries_to_remove:
+        issue_history.remove(x)
+    if len(entries_to_remove) > 0:
+        print("Removed {0} changelog entries for ticket {1}".format(len(entries_to_remove), jira_key))
+
+
 # Loading caches
 # Note: user can manually add tickets to the missing-tickets.txt to skip them
 missing_file_path = "missing-tickets.txt"
@@ -145,20 +162,7 @@ for i in range(config.min_key, config.max_key):
         break
     if key not in tickets_json:
         continue
-    issue_json = get_issue_json(key)
-    issue_history = get_history(issue_json)
-    entries_to_remove = []
-    for changelog_entry in issue_history:
-        timestamp = changelog_entry['created']
-        iso_date = iso.parse(timestamp).date()
-        if JIRA_DEBUG:
-            print(iso_date)
-        if iso_date in config.skip_dates:
-            entries_to_remove.append(changelog_entry)
-    for x in entries_to_remove:
-        issue_history.remove(x)
-    if len(entries_to_remove) > 0:
-        print("Removed {0} changelog entries for ticket {1}".format(len(entries_to_remove), key))
+    filter_history(key)
 
 # store all the tickets
 print("Total number of tickets: {0}".format(len(tickets_json)))
