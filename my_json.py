@@ -1,8 +1,8 @@
 import json
 import os
-import time
 
 import myos
+from myos import current_milli_time
 
 json_dir = 'json_dump'
 myos.mkdir_p(json_dir)
@@ -24,10 +24,6 @@ def load_json(title: str):
     except OSError:
         print("OSError while reading file: " + file)
     return None
-
-
-def current_milli_time() -> int:
-    return int(round(time.time() * 1000))
 
 
 def save_json(title: str, json_obj, pretty_print: bool = False, use_dumps: bool = True):
