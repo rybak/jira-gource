@@ -59,6 +59,13 @@ for their JIRA password to authenticate with the JIRA server.
   [HTTP response code 404](https://en.wikipedia.org/wiki/HTTP_404), which
   would be skipped on the next launch of the script
 
+JIRA tickets do not have any inherent similar structure.
+Script attempts to generate a pseudo folder structure from prefixes
+in tickets summaries.  For example: ticket PROJECT-42 with summary
+"Component: Area: implement feature" will result in path in the
+generated Gource input "Component/Area/PROJECT-42"
+
+
 ### Dependencies
 
 * [requests](http://python-requests.org) library — to talk to a JIRA server
