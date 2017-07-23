@@ -29,13 +29,14 @@ def convert_history(modifications, create_modification, create_last_modification
             iso_time = iso.parse(timestamp)
             if HIST_CONV_DEBUG:
                 print("{k}: @{t}: {n} <{e}>".format(k=key, t=iso_time, n=name, e=email))
-            if not create_modification(key, name, email, iso_time):
+            filename = key
+            if not create_modification(filename, name, email, iso_time):
                 break
 
             # check if `h` is the last change on the `key` ticket
             last_change = jira.get_history(jira.tickets_json[key]['JIRA'])[-1]
             if last_change['created'] == timestamp:
-                if not create_last_modification(key, name, email, iso_time):
+                if not create_last_modification(filename, name, email, iso_time):
                     break
     except KeyboardInterrupt:
         print("Interrupted by user. Stopping...")
