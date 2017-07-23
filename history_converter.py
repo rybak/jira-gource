@@ -1,5 +1,6 @@
 import dateutil.parser as iso
 
+from myos import current_milli_time
 import jira
 
 HIST_CONV_DEBUG = False
@@ -8,6 +9,7 @@ HIST_CONV_DEBUG = False
 def convert_history(modifications, create_modification, create_last_modification):
     print("Number of changes: ", len(modifications))
     print("Converting history...")
+    start = current_milli_time()
     skipped = 0
     names = set()
     key = None
@@ -41,6 +43,8 @@ def convert_history(modifications, create_modification, create_last_modification
         print("NONE" if key is None else key)
         print("Bailing out")
     print("Finished!")
+    finish = current_milli_time()
+    print("Converting took {0} ms.".format(finish - start))
     print("Number of skipped changes = ", skipped)
     print("Saving names of committers")
     # append, to avoid any data loss. Just `sort -u names.txt` later.
