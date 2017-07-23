@@ -1,0 +1,16 @@
+from datetime import date
+
+my_user_name = "johnsmith"
+jira_url = "https://jira.atlassian.com"
+
+project = 'JRASERVER'
+min_key = 1
+max_key = 1000
+
+skip_dates = {
+    date(2006,  7, 30), # workflow transition jira -> v1
+    date(2006,  7, 31), # workflow transition v1 -> v2
+    date(2009, 10, 25), # workflow transition v2 -> v3
+    date(2010, 10, 22), # workflow transition v3 -> v4
+}
+
