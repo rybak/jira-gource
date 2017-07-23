@@ -103,7 +103,6 @@ def get_issue_json(k: str):
     return tickets_json[k]['JIRA']
 
 
-print("Already saved: {0} tickets".format(len(tickets_json)))
 NETWORK_ERROR_WAIT_DELAY = 5  # five seconds
 
 
