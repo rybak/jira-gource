@@ -3,23 +3,16 @@
 import time
 import requests
 import json
-from datetime import date
 from datetime import datetime
 import dateutil.parser as iso
 
 from my_auth import *
-from my_json import json_path, load_json, save_json
+from my_json import load_json, save_json
 from my_os import read_lines
 
 import config
 
 JIRA_DEBUG = False
-
-# Note: user can manually add tickets to the missing-tickets.txt to skip them
-missing_file_path = "missing-tickets.txt"
-missing_tickets = read_lines(missing_file_path)
-print("Missing tickets count = ", len(missing_tickets))
-print("Missing tickets: ", ", ".join(sorted(missing_tickets)))
 
 
 def get_issue_url(issue_key: str) -> str:
@@ -91,12 +84,6 @@ def get_key_str(key_num: int) -> str:
     return config.project + '-' + str(key_num)
 
 
-tickets_title = config.project + '-tickets'
-tickets_json = load_json(tickets_title)
-if tickets_json is None:
-    tickets_json = {}
-
-
 def get_issue_json(k: str):
     if k not in tickets_json:
         return None
@@ -119,6 +106,19 @@ def get_first_timestamp_or(issue_json_obj, default_value="Empty history") -> str
     return history_json[0]['created']
 
 
+# Loading caches
+# Note: user can manually add tickets to the missing-tickets.txt to skip them
+missing_file_path = "missing-tickets.txt"
+missing_tickets = read_lines(missing_file_path)
+print("Missing tickets count = ", len(missing_tickets))
+print("Missing tickets: ", ", ".join(sorted(missing_tickets)))
+
+tickets_title = config.project + '-tickets'
+tickets_json = load_json(tickets_title)
+if tickets_json is None:
+    tickets_json = {}
+
+# Download of tickets
 for i in range(config.min_key, config.max_key):
     key = get_key_str(i)
     try:
@@ -180,6 +180,7 @@ for i in range(config.min_key, config.max_key):
         pretty_print(issue_json)
     tickets_to_process.append(key)
 
+# Gather all change logs into one map
 changes = {}
 for key in tickets_to_process:
     issue_json = get_issue_json(key)
