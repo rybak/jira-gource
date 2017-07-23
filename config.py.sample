@@ -3,6 +3,11 @@ from datetime import date
 my_user_name = "johnsmith"
 jira_url = "https://jira.atlassian.com"
 
+# Change this to a path to the certificate for your server
+# or to False to completely ignore verification
+# For more info see http://docs.python-requests.org/en/master/user/advanced/#ssl-cert-verification
+verify = True
+
 project = 'JRASERVER'
 min_key = 1
 max_key = 1000

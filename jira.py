@@ -29,6 +29,7 @@ def init_session() -> None:
         "fields": "key,summary",
         "expand": "changelog"
     })
+    rest_session.verify = config.verify
     session_initialized = True
 
 
@@ -43,7 +44,7 @@ def download_issue(issue_key: str):
     while True:
         try:
             init_session()
-            r = rest_session.get(issue_url, verify=False)
+            r = rest_session.get(issue_url)
             if r.status_code != 200:
                 print(r)
                 print("Download failed for ticket ", issue_key)
@@ -71,6 +72,8 @@ def download_issue(issue_key: str):
         except requests.exceptions.ConnectionError as ce:
             clear_key(key)
             print("Connection error: ", ce)
+            print("You might need to define 'verify' in config.py.")
+            print("Current value: config.verify =", config.verify)
             print("Waiting for {0} seconds...".format(NETWORK_ERROR_WAIT_DELAY))
             time.sleep(NETWORK_ERROR_WAIT_DELAY)
             # print("Trying again...")
