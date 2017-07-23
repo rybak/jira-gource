@@ -1,6 +1,6 @@
 import dateutil.parser as iso
 
-from my_os import current_milli_time
+from my_os import current_milli_time, read_lines
 import jira
 
 HIST_CONV_DEBUG = False
@@ -11,7 +11,8 @@ def convert_history(modifications, create_modification, create_last_modification
     print("Converting history...")
     start = current_milli_time()
     skipped = 0
-    names = set()
+    names_file_path = 'names.txt'
+    names = read_lines(names_file_path)
     key = None
     try:
         for tk in sorted(modifications):
@@ -46,7 +47,6 @@ def convert_history(modifications, create_modification, create_last_modification
     finish = current_milli_time()
     print("Converting took {0} ms.".format(finish - start))
     print("Number of skipped changes = ", skipped)
-    print("Saving names of committers")
-    # append, to avoid any data loss. Just `sort -u names.txt` later.
-    with open("names.txt", "a") as f:
-        f.write('\n' + "\n".join(names))
+    print("Saving names of committers in '{0}'".format(names_file_path))
+    with open(names_file_path, 'w') as f:
+        f.write("\n".join(names))
