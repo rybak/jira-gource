@@ -13,19 +13,28 @@ from my_os import read_lines
 import config
 
 JIRA_DEBUG = False
+session_initialized = False
 
 
 def get_issue_url(issue_key: str) -> str:
     return config.jira_url + '/rest/api/2/issue/' + issue_key
 
 
+def init_session() -> None:
+    global session_initialized
+    if session_initialized:
+        return
+    rest_session.auth = get_auth(my_login=config.my_user_name, prompt_line="jira pass:")
+    rest_session.params.update({
+        "fields": "key,summary",
+        "expand": "changelog"
+    })
+    session_initialized = True
+
+
 def download_issue(issue_key: str):
     result = None
     issue_url = get_issue_url(issue_key)
-    params = {
-        "fields": "key,summary",
-        "expand": "changelog"
-    }
     if issue_key in missing_tickets:
         print("Skipping missing ticket ", issue_key)
         return None
@@ -33,10 +42,8 @@ def download_issue(issue_key: str):
     print("Downloading: ", issue_key)
     while True:
         try:
-            r = requests.get(issue_url,
-                             params=params,
-                             auth=get_auth(my_login=config.my_user_name, prompt_line="jira pass:"),
-                             verify=False)
+            init_session()
+            r = rest_session.get(issue_url, verify=False)
             if r.status_code != 200:
                 print(r)
                 print("Download failed for ticket ", issue_key)
@@ -135,6 +142,7 @@ tickets_json = load_json(tickets_title)
 if tickets_json is None:
     tickets_json = {}
 
+rest_session = requests.Session()
 # Download of tickets
 for i in range(config.min_key, config.max_key):
     key = get_key_str(i)
