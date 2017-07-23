@@ -162,9 +162,7 @@ for i in range(config.min_key, config.max_key):
 
 # store all the tickets
 print("Total number of tickets: {0}".format(len(tickets_json)))
-print("Saving " + json_path(tickets_title))
 save_json(tickets_title, tickets_json)
-print("Saved!")
 
 print("Saving " + missing_file_path)
 with open(missing_file_path, "w") as f:

@@ -28,7 +28,9 @@ def load_json(title: str):
 
 def save_json(title: str, json_obj, pretty_print: bool = False, use_dumps: bool = True):
     start = current_milli_time()
-    with open(json_path(title), 'w') as f:
+    path = json_path(title)
+    print("Saving '{0}'...".format(path))
+    with open(path, 'w') as f:
         if pretty_print:
             json.dump(json_obj, f, indent=4)
         else:
@@ -40,3 +42,4 @@ def save_json(title: str, json_obj, pretty_print: bool = False, use_dumps: bool 
                 json.dump(json_obj, f, separators=(',', ':'))
         finish = current_milli_time()
         print("Saving took {0} ms. {1}".format(int(finish - start), "using dumps" if use_dumps else "using dump"))
+        print("Finished!")
