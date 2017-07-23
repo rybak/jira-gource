@@ -9,6 +9,7 @@ import dateutil.parser as iso
 
 from my_auth import *
 from my_json import json_path, load_json, save_json
+from my_os import read_lines
 
 import config
 
@@ -16,12 +17,7 @@ JIRA_DEBUG = False
 
 # Note: user can manually add tickets to the missing-tickets.txt to skip them
 missing_file_path = "missing-tickets.txt"
-try:
-    with open(missing_file_path, 'r') as f:
-        missing_tickets = set(f.read().split("\n"))
-except OSError:
-    print("Could not read " + missing_file_path)
-    missing_tickets = set()
+missing_tickets = read_lines(missing_file_path)
 print("Missing tickets count = ", len(missing_tickets))
 print("Missing tickets: ", ", ".join(sorted(missing_tickets)))
 
@@ -195,4 +191,3 @@ for key in tickets_to_process:
         timestamp = h['created']
         h['ticket'] = key
         changes[timestamp + key] = h
-
