@@ -10,7 +10,7 @@ def generate_folder(jira_key: str) -> str:
     summary = jira.tickets_json[jira_key]['JIRA']['fields']['summary']
     if len(summary.strip()) == 0:
         return ""
-    sections = list(map(lambda s: s.strip().title(), summary.split(':')))
+    sections = list(filter(None, map(lambda s: s.strip().title(), summary.split(':'))))
     if len(sections) == 1:
         return jira_key
     sections = sections[:-1]  # remove last
