@@ -39,4 +39,4 @@ def save_json(title: str, json_obj, pretty_print: bool = False, use_dumps: bool 
             else:
                 json.dump(json_obj, f, separators=(',', ':'))
         finish = current_milli_time()
-        print("Saving took {0} ms. {1}".format(int(finish - start), "String" if use_dumps else "File"))
+        print("Saving took {0} ms. {1}".format(int(finish - start), "using dumps" if use_dumps else "using dump"))
