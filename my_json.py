@@ -1,11 +1,11 @@
 import json
 import os
 
-import myos
-from myos import current_milli_time
+import my_os
+from my_os import current_milli_time
 
 json_dir = 'json_dump'
-myos.mkdir_p(json_dir)
+my_os.mkdir_p(json_dir)
 
 
 def json_path(title: str) -> str:

@@ -1,6 +1,6 @@
 import dateutil.parser as iso
 
-from myos import current_milli_time
+from my_os import current_milli_time
 import jira
 
 HIST_CONV_DEBUG = False
