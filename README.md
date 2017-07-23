@@ -78,5 +78,3 @@ TODO
 
 * Download avatars directly from JIRA server using URL of the following form
   `<JIRA-SERVER>/jira/secure/useravatar?size=large&ownerId=fred`
-* Some kind of folder structure in the generated Gource input for tickets.
-  Currently they are treated as if they were a bunch of files in one folder.

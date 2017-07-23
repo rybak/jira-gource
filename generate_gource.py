@@ -23,7 +23,7 @@ def gource_last_modification(filename, author_name, author_email, timestamp) -> 
     return True
 
 
-history_converter.convert_history(jira.changes, gource_modification, gource_last_modification)
+history_converter.convert_history(jira.changes, gource_modification, gource_last_modification, generate_folders=True)
 
 gource_input_txt = "gource-input-{0}.txt".format(config.project)
 try:

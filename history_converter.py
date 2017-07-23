@@ -6,7 +6,18 @@ import jira
 HIST_CONV_DEBUG = False
 
 
-def convert_history(modifications, create_modification, create_last_modification):
+def generate_folder(jira_key: str) -> str:
+    summary = jira.tickets_json[jira_key]['JIRA']['fields']['summary']
+    if len(summary.strip()) == 0:
+        return ""
+    sections = list(map(lambda s: s.strip().title(), summary.split(':')))
+    if len(sections) == 1:
+        return jira_key
+    sections = sections[:-1]  # remove last
+    return '/'.join(sections) + '/' + jira_key
+
+
+def convert_history(modifications, create_modification, create_last_modification, generate_folders: bool = False):
     print("Number of changes: ", len(modifications))
     print("Converting history...")
     start = current_milli_time()
@@ -30,6 +41,8 @@ def convert_history(modifications, create_modification, create_last_modification
             if HIST_CONV_DEBUG:
                 print("{k}: @{t}: {n} <{e}>".format(k=key, t=iso_time, n=name, e=email))
             filename = key
+            if generate_folders:
+                filename = generate_folder(key)
             if not create_modification(filename, name, email, iso_time):
                 break
 
