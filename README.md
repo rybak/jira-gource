@@ -12,6 +12,7 @@ and converts it into [custom
 format](https://github.com/acaudwell/Gource/wiki/Custom-Log-Format),
 which can be used as an input to Gource to visualize it.
 
+![JIRA -> Gource screenshot](jira-gource.png)
 
 Usage
 -----
