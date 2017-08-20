@@ -35,8 +35,7 @@ def reset_auth():
 
 
 def init_session() -> None:
-    global session_initialized
-    if session_initialized:
+    if auth is not None:
         return
     rest_session.auth = get_auth(my_login=config.my_user_name, prompt_line="jira pass:")
     rest_session.params.update({
@@ -44,7 +43,6 @@ def init_session() -> None:
         "expand": "changelog"
     })
     rest_session.verify = config.verify
-    session_initialized = True
 
 
 def download_issue(issue_key: str):
