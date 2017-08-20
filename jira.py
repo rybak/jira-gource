@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 
 import time
+from getpass import getpass
 import requests
 import json
 from datetime import datetime
 import dateutil.parser as iso
 
-from my_auth import *
 from my_json import load_json, save_json
 from my_os import read_lines
 
@@ -14,10 +14,24 @@ import config
 
 JIRA_DEBUG = False
 session_initialized = False
+auth = None
 
 
 def get_issue_url(issue_key: str) -> str:
     return config.jira_url + '/rest/api/2/issue/' + issue_key
+
+
+def get_auth(my_login: str, prompt_line: str = "password:"):
+    global auth
+    if auth is None:
+        my_pass = getpass(prompt=prompt_line)
+        auth = (my_login, my_pass)
+    return auth
+
+
+def reset_auth():
+    global auth
+    auth = None
 
 
 def init_session() -> None:
