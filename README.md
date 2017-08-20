@@ -60,11 +60,11 @@ for their JIRA password to authenticate with the JIRA server.
   [HTTP response code 404](https://en.wikipedia.org/wiki/HTTP_404), which
   would be skipped on the next launch of the script
 
-JIRA tickets do not have any inherent similar structure.
-Script attempts to generate a pseudo folder structure from prefixes
-in tickets summaries.  For example: ticket PROJECT-42 with summary
-"Component: Area: implement feature" will result in path in the
-generated Gource input "Component/Area/PROJECT-42"
+JIRA tickets do not have any inherent structure similar to a codebase in
+a filesystem.  Script attempts to generate a pseudo folder structure from
+prefixes in tickets summaries.  For example: ticket PROJECT-42 with summary
+"Component: Area: implement feature" will be converted to a path
+"Component/Area/PROJECT-42" in the generated Gource input.
 
 
 ### Dependencies
@@ -79,7 +79,7 @@ Contributing
 This is not good example of proper Python. I have written this script over
 the course of five months in my free time.
 
-Feel free to open an issue or submit a pull request.
+Feel free to open an issue or to submit a pull request.
 
 TODO
 ----
