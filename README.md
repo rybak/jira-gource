@@ -60,7 +60,7 @@ jira-gource uses Python 3 features and is not Python 2 compatible.
 * `gource-input-<PROJECT>.txt` ― JIRA history converted to the custom format
   used by Gource.  This file can be used by Gource directly, for example:
 
-      $ gource gource-input-JRASERVER.txt
+  `$ gource gource-input-JRASERVER.txt`
 
 * `names.txt` — list of JIRA users who appeared in the history of downloaded
   tickets.  This list can be used to download the photos to use with Gource's
