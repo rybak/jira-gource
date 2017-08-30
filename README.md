@@ -44,6 +44,8 @@ After you filled in `config.py`:
 When the script starts downloading the tickets, it will prompt the user
 for their JIRA password to authenticate with the JIRA server.
 
+jira-gource uses Python 3 features and is not Python 2 compatible.
+
 ### Output
 
 * `gource-input-<PROJECT>.txt` ― JIRA history converted to the custom format
