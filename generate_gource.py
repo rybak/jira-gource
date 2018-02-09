@@ -27,7 +27,7 @@ history_converter.convert_history(jira.changes, gource_modification, gource_last
 
 gource_input_txt = "gource-input-{0}.txt".format(config.project)
 try:
-    with open(gource_input_txt, "w") as gource_file:
+    with open(gource_input_txt, "w", encoding='utf-8') as gource_file:
         gource_file.write("\n".join(gource_list))
     print("Gource input is saved in '{0}'".format(gource_input_txt))
 except OSError:
