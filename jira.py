@@ -13,7 +13,6 @@ from my_os import read_lines
 import config
 
 JIRA_DEBUG = False
-session_initialized = False
 auth = None
 
 
