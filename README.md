@@ -88,3 +88,7 @@ TODO
 
 * Download avatars directly from JIRA server using URL of the following form
   `<JIRA-SERVER>/jira/secure/useravatar?size=large&ownerId=fred`
+* Add ability to download several projects at once, and a way to combine
+  several histories into one, perhaps grouping them in folders by project key,
+  to complement the existing partition by summary prefixes (see function
+  generate_folder() in history_converter.py)
