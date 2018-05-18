@@ -73,7 +73,7 @@ def download_issue(issue_key: str):
             else:
                 if JIRA_DEBUG:
                     print("url: ", issue_url)
-                print("Request successful")
+                print("Request successful: " + r.url)
                 result = r.json()
                 if JIRA_DEBUG:
                     print(str(json.dumps(r.json(), indent=4, separators=(',', ': '))))
