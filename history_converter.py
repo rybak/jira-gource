@@ -1,4 +1,5 @@
 import dateutil.parser as iso
+import traceback
 
 from my_os import current_milli_time, read_lines
 import jira
@@ -58,6 +59,7 @@ def convert_history(modifications, create_modification, create_last_modification
         print("Interrupted by user. Stopping...")
     except Exception as e:
         print("Unexpected exception", e)
+        print(traceback.format_exc())
         print("NONE" if key is None else key)
         print("Bailing out")
     print("Finished!")
