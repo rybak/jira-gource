@@ -39,10 +39,6 @@ def init_session() -> None:
     if auth is not None:
         return
     rest_session.auth = get_auth(my_login=config.my_user_name, prompt_line="jira pass:")
-    rest_session.params.update({
-        "fields": "key,summary",
-        "expand": "changelog"
-    })
     rest_session.verify = config.verify
 
 
@@ -57,7 +53,7 @@ def download_issue(issue_key: str):
     while True:
         try:
             init_session()
-            r = rest_session.get(issue_url)
+            r = rest_session.get(issue_url, params=params)
             if r.status_code != 200:
                 print(r)
                 print("Download failed for ticket ", issue_key)
@@ -159,6 +155,11 @@ if tickets_json is None:
     tickets_json = {}
 
 rest_session = requests.Session()
+
+params = {
+    'fields': 'key,summary',
+    'expand': 'changelog'
+}
 # Download of tickets
 for i in range(config.min_key, config.max_key):
     key = get_key_str(i)
