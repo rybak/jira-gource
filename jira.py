@@ -43,11 +43,11 @@ def init_session() -> None:
 
 
 def download_issue(issue_key: str):
-    result = None
-    issue_url = get_issue_url(issue_key)
     if issue_key in missing_tickets:
         print("Skipping missing ticket ", issue_key)
         return None
+    result = None
+    issue_url = get_issue_url(issue_key)
     print(datetime.now())
     print("Downloading: ", issue_key)
     while True:
