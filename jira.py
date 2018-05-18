@@ -160,6 +160,8 @@ params = {
     'fields': 'key,summary',
     'expand': 'changelog'
 }
+if config.extra_fields is not None:
+    params['fields'] = params['fields'] + ',' + config.extra_fields
 # Download of tickets
 for i in range(config.min_key, config.max_key):
     key = get_key_str(i)

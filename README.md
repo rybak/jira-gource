@@ -34,6 +34,12 @@ provided in `config.py.sample`.  You need to provide:
 
    These kinds of changes touch a lot of tickets and thus make for a bad
    visualization of JIRA history.
+* `sections_extension` - a function to extend (or completely change) the
+  default "fake folder" path for tickets (see section "Output" below)
+* By default, script only downloads ticket's summary and changelog.  To make
+  an interesting `sections_extension` function, you might need some other
+  fields of the ticket.  This can be done by specifying these fields in config
+  variable `extra_fields`.
 
 ### Running
 

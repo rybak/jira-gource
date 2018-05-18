@@ -2,6 +2,7 @@ import dateutil.parser as iso
 
 from my_os import current_milli_time, read_lines
 import jira
+import config
 
 HIST_CONV_DEBUG = False
 
@@ -11,6 +12,8 @@ def generate_folder(jira_key: str) -> str:
     if len(summary.strip()) == 0:
         return ""
     sections = list(filter(None, map(lambda s: s.strip().title(), summary.split(':'))))
+    if config.sections_extension is not None:
+        sections = config.sections_extension(jira.tickets_json[jira_key]['JIRA'], sections)
     if len(sections) == 1:
         return jira_key
     sections = sections[:-1]  # remove last
