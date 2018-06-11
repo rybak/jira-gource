@@ -136,6 +136,8 @@ def filter_history(jira_key: str) -> None:
             print(iso_date)
         if iso_date in config.skip_dates:
             entries_to_remove.append(changelog_entry)
+        if config.skip_filter and config.skip_filter(changelog_entry):
+            entries_to_remove.append(changelog_entry)
     for x in entries_to_remove:
         issue_history.remove(x)
     if len(entries_to_remove) > 0:

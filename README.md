@@ -26,8 +26,11 @@ provided in `config.py.sample`.  You need to provide:
 * your JIRA login to use with REST API
 * ID of the project
 * `min_key` and `max_key` - the bounds for the issue keys to download
+* `skip_filter` - a function which takes a changelog entry and returns
+  a boolean - whether or not the changelog entry should be skipped in the
+  output.
 * `skip_dates` - a set of dates, which you wish to skip in the output.
-   Dates to skip are:
+  Suggestions for dates to skip:
 
     * workflow transition - when all tickets have one field updated
     * big assignee transition - when a lot of tickets are reassigned
