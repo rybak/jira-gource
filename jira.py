@@ -149,7 +149,8 @@ def filter_history(jira_key: str) -> None:
 missing_file_path = "missing-tickets.txt"
 missing_tickets = read_lines(missing_file_path)
 print("Missing tickets count = ", len(missing_tickets))
-print("Missing tickets: ", ", ".join(sorted(missing_tickets)))
+if JIRA_DEBUG:
+    print("Missing tickets: ", ", ".join(sorted(missing_tickets)))
 
 tickets_title = config.project + '-tickets'
 tickets_json = load_json(tickets_title)
