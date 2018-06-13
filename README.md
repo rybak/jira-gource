@@ -93,6 +93,14 @@ the course of five months in my free time.
 
 Feel free to open an issue or to submit a pull request.
 
+
+Mirrors
+-------
+
+* https://github.com/rybak/jira-gource
+* https://bitbucket.org/andreyrybak/jira-gource
+* https://gitlab.com/andrybak/jira-gource
+
 TODO
 ----
 
