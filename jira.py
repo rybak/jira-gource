@@ -44,19 +44,19 @@ def init_session() -> None:
 
 def download_issue(issue_key: str):
     if issue_key in missing_tickets:
-        print("Skipping missing ticket ", issue_key)
+        print("Skipping missing ticket {}".format(issue_key))
         return None
     result = None
     issue_url = get_issue_url(issue_key)
     print(datetime.now())
-    print("Downloading: ", issue_key)
+    print("Downloading: {}".format(issue_key))
     while True:
         try:
             init_session()
             r = rest_session.get(issue_url, params=params)
             if r.status_code != 200:
                 print(r)
-                print("Download failed for ticket ", issue_key)
+                print("Download failed for ticket {}".format(issue_key))
                 if r.status_code == 401:
                     print("Wrong password")
                     reset_auth()
@@ -67,12 +67,12 @@ def download_issue(issue_key: str):
                     reset_auth()
                     continue
                 if r.status_code == 404:
-                    print("No issue ", issue_key)
+                    print("No issue {}".format(issue_key))
                     missing_tickets.add(issue_key)
                 break
             else:
                 if JIRA_DEBUG:
-                    print("url: ", issue_url)
+                    print("url: {}".format(issue_url))
                 print("Request successful: " + r.url)
                 result = r.json()
                 if JIRA_DEBUG:
@@ -80,7 +80,7 @@ def download_issue(issue_key: str):
                 break  # whatever, still can return the json
         except requests.exceptions.ConnectionError as ce:
             clear_key(key)
-            print("Connection error: ", ce)
+            print("Connection error: {}".format(ce))
             print("You might need to define 'verify' in config.py.")
             print("Current value: config.verify =", config.verify)
             print("Waiting for {0} seconds...".format(NETWORK_ERROR_WAIT_DELAY))
@@ -148,7 +148,7 @@ def filter_history(jira_key: str) -> None:
 # Note: user can manually add tickets to the missing-tickets.txt to skip them
 missing_file_path = "missing-tickets.txt"
 missing_tickets = read_lines(missing_file_path)
-print("Missing tickets count = ", len(missing_tickets))
+print("Missing tickets count = {}".format(len(missing_tickets)))
 if JIRA_DEBUG:
     print("Missing tickets: ", ", ".join(sorted(missing_tickets)))
 
