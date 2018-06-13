@@ -16,9 +16,9 @@ def generate_folder(jira_key: str) -> str:
     if config.sections_extension is not None:
         sections = config.sections_extension(jira.tickets_json[jira_key]['JIRA'], sections)
     if len(sections) == 1:
-        return jira_key
+        return ""
     sections = sections[:-1]  # remove last
-    return '/'.join(sections) + '/' + jira_key
+    return '/'.join(sections) + '/'
 
 
 def convert_history(modifications, create_modification, create_last_modification, generate_folders: bool = False):
@@ -44,9 +44,10 @@ def convert_history(modifications, create_modification, create_last_modification
             iso_time = iso.parse(timestamp)
             if HIST_CONV_DEBUG:
                 print("{k}: @{t}: {n} <{e}>".format(k=key, t=iso_time, n=name, e=email))
-            filename = key
             if generate_folders:
-                filename = generate_folder(key)
+                filename = generate_folder(key) + key
+            else:
+                filename = key
             if not create_modification(filename, name, email, iso_time):
                 break
 
