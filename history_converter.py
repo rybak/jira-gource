@@ -8,6 +8,15 @@ import config
 HIST_CONV_DEBUG = False
 
 
+def generate_extension(jira_key: str) -> str:
+    issuetype = jira.tickets_json[jira_key]['JIRA']['fields'] \
+            .get('issuetype', {}) \
+            .get('name', "")
+    if len(issuetype.strip()) == 0:
+        return ""
+    return "." + issuetype.replace(" ", "")
+
+
 def generate_folder(jira_key: str) -> str:
     summary = jira.tickets_json[jira_key]['JIRA']['fields']['summary']
     if len(summary.strip()) == 0:
@@ -48,6 +57,7 @@ def convert_history(modifications, create_modification, create_last_modification
                 filename = generate_folder(key) + key
             else:
                 filename = key
+            filename += generate_extension(key)
             if not create_modification(filename, name, email, iso_time):
                 break
 

@@ -75,9 +75,12 @@ jira-gource uses Python 3 features and is not Python 2 compatible.
 
 JIRA tickets do not have any inherent structure similar to a codebase in
 a filesystem.  Script attempts to generate a pseudo folder structure from
-prefixes in tickets summaries.  For example: ticket PROJECT-42 with summary
-"Component: Area: implement feature" will be converted to a path
-"Component/Area/PROJECT-42" in the generated Gource input.
+prefixes in tickets summaries.  Issue type is used to create the file
+extensions in the generated history.  Different file extensions result in
+different colors of nodes in the Gource visualization.  For example: "Task"
+ticket PROJECT-42 with summary "Component: Area: implement feature" will be
+converted to a path "Component/Area/PROJECT-42.Task" in the generated Gource
+input.
 
 
 ### Dependencies
