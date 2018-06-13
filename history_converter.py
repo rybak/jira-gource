@@ -79,5 +79,5 @@ def convert_history(modifications, create_modification, create_last_modification
     print("Number of skipped changes = ", skipped)
     print("Saving names of committers in '{0}'".format(names_file_path))
     with open(names_file_path, 'w') as f:
-        f.write("\n".join(names))
+        f.write("\n".join(sorted(names)))
     print("Saved!")
