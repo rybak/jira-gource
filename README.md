@@ -26,7 +26,7 @@ provided in `config.py.sample`.  You need to provide:
 * your JIRA login to use with REST API
 * ID of the project
 * `min_key` and `max_key` - the bounds for the issue keys to download
-* `skip_filter` - a function which takes a changelog entry and returns
+* Optional `skip_filter` - a function which takes a changelog entry and returns
   a boolean - whether or not the changelog entry should be skipped in the
   output.
 * `skip_dates` - a set of dates, which you wish to skip in the output.
@@ -35,11 +35,12 @@ provided in `config.py.sample`.  You need to provide:
     * workflow transition - when all tickets have one field updated
     * big assignee transition - when a lot of tickets are reassigned
 
-   These kinds of changes touch a lot of tickets and thus make for a bad
-   visualization of JIRA history.
+  These kinds of changes touch a lot of tickets and thus make for a bad
+  visualization of JIRA history.  Use `set()` (empty set) if you do not want to
+  skip any changlog entries.
 
-* `sections_extension` - a function to extend (or completely change) the
-  default "fake folder" path for tickets (see section "Output" below)
+* Optional `sections_extension` - a function to extend (or completely change)
+  the default "fake folder" path for tickets (see section "Output" below)
 * By default, script only downloads ticket's summary and changelog.  To make
   an interesting `sections_extension` function, you might need some other
   fields of the ticket.  This can be done by specifying these fields in config
