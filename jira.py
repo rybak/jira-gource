@@ -160,7 +160,7 @@ if tickets_json is None:
 rest_session = requests.Session()
 
 params = {
-    'fields': 'key,summary',
+    'fields': 'key,summary,issuetype',
     'expand': 'changelog'
 }
 if config.extra_fields is not None:
