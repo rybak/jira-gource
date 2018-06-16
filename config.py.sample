@@ -29,23 +29,20 @@ def skip_filter(changelog_entry):
     return False
 
 # Specify a way to extend the default sections of a ticket
-ISSUE_TYPE_KEY='issuetype'
 STATUS_KEY='status'
 
 
 def sections_extension_jira_server(issue_json, sections):
-    # this sample prepends all tickets with their status and issue type
+    # this sample prepends all tickets with their status
     fields = issue_json['fields']
     extra_sections = []
     if STATUS_KEY in fields:
         extra_sections.append(str(fields[STATUS_KEY]['name']))
-    if ISSUE_TYPE_KEY in fields:
-        extra_sections.append(str(fields[ISSUE_TYPE_KEY]['name']))
-    return sections
+    return extra_sections + sections
 
 
 sections_extension = None
 if project == 'JRASERVER':
     sections_extension = sections_extension_jira_server
 # comma separated string
-extra_fields = ','.join([STATUS_KEY, ISSUE_TYPE_KEY])
+extra_fields = ','.join([STATUS_KEY])
