@@ -139,6 +139,8 @@ def filter_history(jira_key: str) -> None:
         if config.skip_filter and config.skip_filter(changelog_entry):
             entries_to_remove.append(changelog_entry)
     for x in entries_to_remove:
+        if x not in issue_history:
+            continue
         issue_history.remove(x)
     if len(entries_to_remove) > 0:
         print("Removed {0} changelog entries for ticket {1}".format(len(entries_to_remove), jira_key))
