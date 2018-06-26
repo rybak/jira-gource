@@ -114,3 +114,7 @@ TODO
   several histories into one, perhaps grouping them in folders by project key,
   to complement the existing partition by summary prefixes (see function
   generate_folder() in history_converter.py)
+* Create `config_lib.py` with some helpers to make creation of config.py
+  easier.
+* Rewrite README.
+* Release version 1.0
