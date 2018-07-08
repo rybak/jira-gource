@@ -110,10 +110,10 @@ def clear_key(k):
             tickets_json.pop(k, None)
 
 
-def get_first_timestamp_or(issue_json_obj, default_value="Empty history") -> str:
+def get_first_timestamp_or(issue_json_obj) -> str:
     history_json = get_history(issue_json_obj)
     if len(history_json) == 0:
-        return default_value
+        return "Empty history"
     return history_json[0]['created']
 
 
