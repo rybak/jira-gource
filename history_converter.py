@@ -29,7 +29,7 @@ def generate_folder(jira_key: str) -> str:
     return '/'.join(sections) + '/'
 
 
-def convert_history(modifications, create_modification, create_last_modification, generate_folders: bool = False):
+def convert_history(modifications, create_modification, create_last_modification):
     print("Number of changes: ", len(modifications))
     print("Converting history...")
     start = current_milli_time()
@@ -43,27 +43,23 @@ def convert_history(modifications, create_modification, create_last_modification
             key = h['ticket']
             if 'author' not in h:
                 skipped += 1
-                # skipping automated transitions of tickets, e.g. by Bitbucket pull-requests and similar
+                # skipping automated transitions of tickets, e.g. by Bitbucket
+                # pull-requests and similar
                 continue
             name = h['author']['displayName']
             names.add(name)
-            email = h['author']['emailAddress']
             timestamp = h['created']
             iso_time = iso.parse(timestamp)
             if HIST_CONV_DEBUG:
-                print("{k}: @{t}: {n} <{e}>".format(k=key, t=iso_time, n=name, e=email))
-            if generate_folders:
-                filename = generate_folder(key) + key
-            else:
-                filename = key
-            filename += generate_extension(key)
-            if not create_modification(filename, name, email, iso_time):
+                print("{k}: @{t}: {n}".format(k=key, t=iso_time, n=name))
+            filename = generate_folder(key) + key + generate_extension(key)
+            if not create_modification(filename, name, iso_time):
                 break
 
             # check if `h` is the last change on the `key` ticket
             last_change = jira.get_history(jira.tickets_json[key]['JIRA'])[-1]
             if last_change['created'] == timestamp:
-                if not create_last_modification(filename, name, email, iso_time):
+                if not create_last_modification(filename, name, iso_time):
                     break
     except KeyboardInterrupt:
         print("Interrupted by user. Stopping...")
