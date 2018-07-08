@@ -211,7 +211,7 @@ for i in range(config.min_key, config.max_key):
 
 # Gather all change logs into one map
 changes = {}
-project_changes = {}
+project_changes = []
 changes[config.project] = project_changes
 for key in tickets_to_process:
     issue_json = get_issue_json(key)
@@ -222,5 +222,5 @@ for key in tickets_to_process:
             # pull-requests and similar
             continue
         timestamp = h['created']
-        h['ticket'] = key
-        project_changes[timestamp + key] = h
+        name = h['author']['displayName']
+        project_changes.append((timestamp, key, name))

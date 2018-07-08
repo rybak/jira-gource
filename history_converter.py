@@ -39,18 +39,17 @@ def convert_history(modifications, create_modification, create_last_modification
     names = read_lines(names_file_path)
     key = None
     try:
-        for tk, h in sorted(modifications.items()):
-            key = h['ticket']
-            name = h['author']['displayName']
+        for (timestamp, key, name) in sorted(modifications):
             names.add(name)
-            timestamp = h['created']
             iso_time = iso.parse(timestamp)
             if HIST_CONV_DEBUG:
                 print("{k}: @{t}: {n}".format(k=key, t=iso_time, n=name))
             filename = generate_folder(key) + key + generate_extension(key)
             create_modification(filename, name, iso_time)
 
-            # check if `h` is the last change on the `key` ticket
+            # TODO improve output by generating only one gource log line for
+            # TODO the last change
+            # check if it is the last change on the `key` ticket
             last_change = jira.get_history(jira.tickets_json[key]['JIRA'])[-1]
             if last_change['created'] == timestamp:
                 create_last_modification(filename, name, iso_time)
