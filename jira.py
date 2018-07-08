@@ -94,6 +94,10 @@ def get_history(issue_json_obj):
     return issue_json_obj['changelog']['histories']
 
 
+def put_history(issue_json_obj, history):
+    issue_json_obj['changelog']['histories'] = history
+
+
 def get_key_str(key_num: int) -> str:
     return config.project + '-' + str(key_num)
 
@@ -117,27 +121,39 @@ def get_first_timestamp_or(issue_json_obj) -> str:
     return history_json[0]['created']
 
 
-def filter_history(jira_key: str) -> None:
+def filter_history(jira_key: str, p) -> None:
     issue = get_issue_json(jira_key)
     issue_history = get_history(issue)
-    entries_to_remove = []
-    for changelog_entry in issue_history:
-        t = changelog_entry['created']
-        iso_date = iso.parse(t).date()
-        if JIRA_DEBUG:
-            print(iso_date)
-        if iso_date in config.skip_dates:
-            entries_to_remove.append(changelog_entry)
-        if config.skip_filter and config.skip_filter(changelog_entry):
-            entries_to_remove.append(changelog_entry)
-    for x in entries_to_remove:
-        if x not in issue_history:
-            continue
-        issue_history.remove(x)
-    if len(entries_to_remove) > 0:
+    old_len = len(issue_history)
+    issue_history = list(filter(p, issue_history))
+    new_len = len(issue_history)
+    put_history(issue, issue_history)
+    if new_len < old_len:
         print("Removed {0} changelog entries for ticket {1}".format(
-            len(entries_to_remove), jira_key))
+            old_len - new_len, jira_key))
 
+
+def is_good_date(skip_dates, changelog_entry):
+    t = changelog_entry['created']
+    iso_date = iso.parse(t).date()
+    return iso_date not in skip_dates
+
+
+if len(config.skip_dates) == 0:
+    if config.skip_filter is None:
+        def entry_predicate(changelog_entry):
+            return True
+    else:
+        def entry_predicate(changelog_entry):
+            return not config.skip_filter(changelog_entry)
+else:
+    if config.skip_filter is None:
+        def entry_predicate(changelog_entry):
+            return is_good_date(config.skip_dates, changelog_entry)
+    else:
+        def entry_predicate(changelog_entry):
+            return is_good_date(config.skip_dates, changelog_entry) and \
+                   (not config.skip_filter(changelog_entry))
 
 # Loading caches
 # Note: user can manually add tickets to the missing-tickets.txt to skip them
@@ -187,7 +203,7 @@ for i in range(config.min_key, config.max_key):
         break
     if key not in tickets_json:
         continue
-    filter_history(key)
+    filter_history(key, entry_predicate)
 
 # store all the tickets
 print("Total number of tickets: {0}".format(len(tickets_json)))
