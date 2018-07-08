@@ -81,10 +81,7 @@ def download_issue(issue_key: str):
             print("Connection error: {}".format(ce))
             print("You might need to define 'verify' in config.py.")
             print("Current value: config.verify =", config.verify)
-            print("Waiting for {0} seconds...".format(NETWORK_ERROR_WAIT_DELAY))
-            time.sleep(NETWORK_ERROR_WAIT_DELAY)
-            # print("Trying again...")
-            # might be useless to try again, return None
+            time.sleep(5)
             break
     return result
 
@@ -105,9 +102,6 @@ def get_issue_json(k: str):
     if k not in tickets_json:
         return None
     return tickets_json[k]['JIRA']
-
-
-NETWORK_ERROR_WAIT_DELAY = 5  # five seconds
 
 
 def clear_key(k):
