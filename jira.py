@@ -71,8 +71,6 @@ def download_issue(issue_key: str):
                     missing_tickets.add(issue_key)
                 break
             else:
-                if JIRA_DEBUG:
-                    print("url: {}".format(issue_url))
                 print("Request successful: " + r.url)
                 result = r.json()
                 if JIRA_DEBUG:
