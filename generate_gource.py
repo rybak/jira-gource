@@ -12,16 +12,14 @@ def _write_gource(filename, author_name, unix_time, gource_update_type):
     gource_list.append(gource_log_item)
 
 
-def gource_modification(filename, author_name, timestamp) -> bool:
+def gource_modification(filename, author_name, timestamp):
     unix_time = timestamp.timestamp()
     _write_gource(filename, author_name, unix_time, 'M')
-    return True
 
 
-def gource_last_modification(filename, author_name, timestamp) -> bool:
+def gource_last_modification(filename, author_name, timestamp):
     unix_time = timestamp.timestamp()
     _write_gource(filename, author_name, unix_time, 'D')
-    return True
 
 
 history_converter.convert_history(jira.changes, gource_modification, gource_last_modification)

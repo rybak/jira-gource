@@ -52,14 +52,12 @@ def convert_history(modifications, create_modification, create_last_modification
             if HIST_CONV_DEBUG:
                 print("{k}: @{t}: {n}".format(k=key, t=iso_time, n=name))
             filename = generate_folder(key) + key + generate_extension(key)
-            if not create_modification(filename, name, iso_time):
-                break
+            create_modification(filename, name, iso_time)
 
             # check if `h` is the last change on the `key` ticket
             last_change = jira.get_history(jira.tickets_json[key]['JIRA'])[-1]
             if last_change['created'] == timestamp:
-                if not create_last_modification(filename, name, iso_time):
-                    break
+                create_last_modification(filename, name, iso_time)
     except KeyboardInterrupt:
         print("Interrupted by user. Stopping...")
     except Exception as e:
