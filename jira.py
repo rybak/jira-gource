@@ -54,6 +54,8 @@ def download_issue(issue_key: str):
         try:
             init_session()
             r = rest_session.get(issue_url, params=params)
+            if JIRA_DEBUG:
+                pretty_print(r.json())
             if r.status_code != 200:
                 print(r)
                 print("Download failed for ticket {}".format(issue_key))
@@ -73,8 +75,6 @@ def download_issue(issue_key: str):
             else:
                 print("Request successful: " + r.url)
                 result = r.json()
-                if JIRA_DEBUG:
-                    print(str(json.dumps(r.json(), indent=4, separators=(',', ': '))))
                 break  # whatever, still can return the json
         except requests.exceptions.ConnectionError as ce:
             clear_key(key)
