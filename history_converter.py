@@ -31,9 +31,25 @@ def generate_folder(jira_key: str) -> str:
     return '/'.join(sections) + '/'
 
 
-def convert_history(modifications, create_modification, create_last_modification):
+def _create_gource(filename, author_name, unix_time, gource_update_type):
+    return "{t}|{u}|{c}|{f}".format(t=int(unix_time), u=author_name,
+                                    f=filename, c=gource_update_type)
+
+
+def _create_modification(filename, author_name, timestamp):
+    unix_time = timestamp.timestamp()
+    return _create_gource(filename, author_name, unix_time, 'M')
+
+
+def _last_modification(filename, author_name, timestamp):
+    unix_time = timestamp.timestamp()
+    return _create_gource(filename, author_name, unix_time, 'D')
+
+
+def convert_history(modifications):
     print("Number of changes: ", len(modifications))
     print("Converting history...")
+    gource_list = []
     start = current_milli_time()
     names_file_path = 'names.txt'
     names = read_lines(names_file_path)
@@ -45,14 +61,14 @@ def convert_history(modifications, create_modification, create_last_modification
             if HIST_CONV_DEBUG:
                 print("{k}: @{t}: {n}".format(k=key, t=iso_time, n=name))
             filename = generate_folder(key) + key + generate_extension(key)
-            create_modification(filename, name, iso_time)
+            gource_list.append(_create_modification(filename, name, iso_time))
 
             # TODO improve output by generating only one gource log line for
             # TODO the last change
             # check if it is the last change on the `key` ticket
             last_change = jira.get_history(jira.tickets_json[key]['JIRA'])[-1]
             if last_change['created'] == timestamp:
-                create_last_modification(filename, name, iso_time)
+                gource_list.append(_last_modification(filename, name, iso_time))
     except KeyboardInterrupt:
         print("Interrupted by user. Stopping...")
     except Exception as e:
@@ -67,3 +83,4 @@ def convert_history(modifications, create_modification, create_last_modification
     with open(names_file_path, 'w') as f:
         f.write("\n".join(sorted(names)))
     print("Saved!")
+    return gource_list
