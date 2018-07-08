@@ -38,8 +38,7 @@ def convert_history(modifications, create_modification, create_last_modification
     names = read_lines(names_file_path)
     key = None
     try:
-        for tk in sorted(modifications):
-            h = modifications[tk]
+        for tk, h in sorted(modifications.items()):
             key = h['ticket']
             if 'author' not in h:
                 skipped += 1
