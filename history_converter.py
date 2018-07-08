@@ -19,8 +19,9 @@ def generate_extension(jira_key: str) -> str:
 
 def generate_folder(jira_key: str) -> str:
     summary = jira.tickets_json[jira_key]['JIRA']['fields']['summary']
-    sections = list(filter(None, map(lambda s: s.strip().title(), summary.split(':'))))
+    sections = list(map(lambda s: s.strip().title(), summary.split(':')))
     sections = sections[:-1]  # remove last bit of summary
+    sections = list(filter(lambda s: len(s) < 50, sections))
     if config.sections_extension is not None:
         sections = config.sections_extension(jira.tickets_json[jira_key]['JIRA'], sections)
     if len(sections) == 0:
