@@ -24,6 +24,8 @@ def generate_folder(jira_key: str) -> str:
     sections = list(filter(lambda s: len(s) < 50, sections))
     if config.sections_extension is not None:
         sections = config.sections_extension(jira.tickets_json[jira_key]['JIRA'], sections)
+    # TODO (several projects) replace two lines with
+    # TODO sections.insert(0, project_id)
     if len(sections) == 0:
         return ""
     return '/'.join(sections) + '/'
@@ -33,18 +35,12 @@ def convert_history(modifications, create_modification, create_last_modification
     print("Number of changes: ", len(modifications))
     print("Converting history...")
     start = current_milli_time()
-    skipped = 0
     names_file_path = 'names.txt'
     names = read_lines(names_file_path)
     key = None
     try:
         for tk, h in sorted(modifications.items()):
             key = h['ticket']
-            if 'author' not in h:
-                skipped += 1
-                # skipping automated transitions of tickets, e.g. by Bitbucket
-                # pull-requests and similar
-                continue
             name = h['author']['displayName']
             names.add(name)
             timestamp = h['created']
@@ -68,7 +64,6 @@ def convert_history(modifications, create_modification, create_last_modification
     print("Finished!")
     finish = current_milli_time()
     print("Converting took {0} ms.".format(finish - start))
-    print("Number of skipped changes = ", skipped)
     print("Saving names of committers in '{0}'".format(names_file_path))
     with open(names_file_path, 'w') as f:
         f.write("\n".join(sorted(names)))

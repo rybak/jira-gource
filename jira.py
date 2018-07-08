@@ -217,6 +217,10 @@ for key in tickets_to_process:
     issue_json = get_issue_json(key)
     history = get_history(issue_json)
     for h in history:
+        if 'author' not in h:
+            # skipping automated transitions of tickets, e.g. by Bitbucket
+            # pull-requests and similar
+            continue
         timestamp = h['created']
         h['ticket'] = key
         project_changes[timestamp + key] = h
