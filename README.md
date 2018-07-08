@@ -92,7 +92,7 @@ represented by `System/Component/PROJECT-42.Task` in the generated Gource input.
   via REST API
 * jira-gource uses Python 3 features and is not Python 2 compatible.
 * jira-gource has only been tested with [JIRA version 7.1.6][JIRA-REST-API],
-  but is probably compatible with all 7.* versions.
+  but is probably compatible with all 7.\* versions.
 
 
 Contributing
@@ -131,6 +131,7 @@ TODO
 * Clean up and document the code.
 * Write release notes
 * Release version 1.0
+* Add name mapping/filtering
 
 [Gource-homepage]: http://gource.io
 [Gource-github]: https://github.com/acaudwell/Gource
