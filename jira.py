@@ -135,7 +135,8 @@ def filter_history(jira_key: str) -> None:
             continue
         issue_history.remove(x)
     if len(entries_to_remove) > 0:
-        print("Removed {0} changelog entries for ticket {1}".format(len(entries_to_remove), jira_key))
+        print("Removed {0} changelog entries for ticket {1}".format(
+            len(entries_to_remove), jira_key))
 
 
 # Loading caches
