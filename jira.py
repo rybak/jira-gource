@@ -20,13 +20,13 @@ def get_issue_url(issue_key: str) -> str:
     return config.jira_url + '/rest/api/2/issue/' + issue_key
 
 
-def get_auth(my_login: str, prompt_line: str = "password:"):
+def get_auth():
     global auth
     if auth is None:
         print('url: {0}'.format(config.jira_url))
-        print('login: {0}'.format(my_login))
-        my_pass = getpass(prompt=prompt_line)
-        auth = (my_login, my_pass)
+        print('login: {0}'.format(config.my_user_name))
+        my_pass = getpass(prompt="jira pass:")
+        auth = (config.my_user_name, my_pass)
     return auth
 
 
@@ -38,7 +38,7 @@ def reset_auth():
 def init_session() -> None:
     if auth is not None:
         return
-    rest_session.auth = get_auth(my_login=config.my_user_name, prompt_line="jira pass:")
+    rest_session.auth = get_auth()
     rest_session.verify = config.verify
 
 
