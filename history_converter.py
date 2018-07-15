@@ -1,5 +1,6 @@
 import dateutil.parser as iso
 import traceback
+from functools import lru_cache
 
 from my_os import current_milli_time, read_lines
 import jira
@@ -53,14 +54,19 @@ def convert_history(modifications, sections_extension):
     names_file_path = 'names.txt'
     names = read_lines(names_file_path)
     key = None
+
+    @lru_cache(maxsize=50000)
+    def get_filename(jira_key: str) -> str:
+        folder_path = generate_folder(jira_key, sections_extension)
+        return folder_path + jira_key + generate_extension(jira_key)
+
     try:
         for (timestamp, key, name, is_last_change) in sorted(modifications):
             names.add(name)
             iso_time = iso.parse(timestamp)
             if HIST_CONV_DEBUG:
                 print("{k}: @{t}: {n}".format(k=key, t=iso_time, n=name))
-            folder_path = generate_folder(key, sections_extension)
-            filename = folder_path + key + generate_extension(key)
+            filename = get_filename(key)
             if not is_last_change:
                 gource_list.append(
                     _create_modification(filename, name, iso_time))
@@ -80,4 +86,5 @@ def convert_history(modifications, sections_extension):
     with open(names_file_path, 'w') as f:
         f.write("\n".join(sorted(names)))
     print("Saved!")
+    print(get_filename.cache_info())
     return gource_list
