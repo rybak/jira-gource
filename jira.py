@@ -124,7 +124,8 @@ def clear_key(k):
 def filtered_history(jira_key: str, p) -> List:
     issue_history = _get_orig_history(jira_key)
     old_len = len(issue_history)
-    filtered = list(filter(p, issue_history))
+    # automated transitions of issues, e.g. by Bitbucket, do not have author
+    filtered = list(filter(lambda h: 'author' in h and p(h), issue_history))
     new_len = len(filtered)
     if new_len < old_len:
         print("Removed {0} changelog entries for ticket {1}".format(
@@ -227,10 +228,6 @@ changes[config.project] = project_changes
 for key in tickets_to_process:
     history = get_history(key)
     for h in history:
-        if 'author' not in h:
-            # skipping automated transitions of tickets, e.g. by Bitbucket
-            # pull-requests and similar
-            continue
         timestamp = h['created']
         name = h['author']['displayName']
         project_changes.append((timestamp, key, name))
