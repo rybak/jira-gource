@@ -102,7 +102,13 @@ def _get_history(jira_key: str):
 
 
 def _put_history(jira_key: str, filtered: List):
-    tickets_json[jira_key]['filtered_history'] = filtered
+    history = []
+    last_index = len(filtered) - 1
+    for i, h in enumerate(filtered):
+        timestamp = h['created']
+        name = h['author']['displayName']
+        history.append((timestamp, jira_key, name, i == last_index))
+    tickets_json[jira_key]['filtered_history'] = history
 
 
 def get_key_str(key_num: int) -> str:
@@ -227,11 +233,7 @@ project_changes = []
 changes[config.project] = project_changes
 for key in tickets_to_process:
     history = _get_history(key)
-    last_index = len(history) - 1
-    for i, h in enumerate(history):
-        timestamp = h['created']
-        name = h['author']['displayName']
-        project_changes.append((timestamp, key, name, i == last_index))
+    project_changes.extend(history)
 
 print("Saving " + missing_file_path)
 with open(missing_file_path, "w") as f:
