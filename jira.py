@@ -97,8 +97,8 @@ def _get_orig_history(jira_key: str):
     return get_issue_json(jira_key)['changelog']['histories']
 
 
-def _get_history(jira_key: str):
-    return tickets_json[jira_key]['filtered_history']
+def _pop_history(jira_key: str):
+    return tickets_json[jira_key].pop('filtered_history')
 
 
 def _put_history(jira_key: str, filtered: List):
@@ -232,7 +232,7 @@ changes = {}
 project_changes = []
 changes[config.project] = project_changes
 for key in tickets_to_process:
-    history = _get_history(key)
+    history = _pop_history(key)
     project_changes.extend(history)
 
 print("Saving " + missing_file_path)
