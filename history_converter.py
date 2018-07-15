@@ -1,3 +1,6 @@
+"""
+Converts JIRA history into Gource history.
+"""
 import traceback
 from datetime import datetime
 from functools import lru_cache
@@ -32,20 +35,6 @@ def generate_folder(jira_key: str, extension) -> str:
     return '/'.join(sections) + '/'
 
 
-def _create_gource(filename: str, author_name: str, unix_time: int,
-                   gource_update_type: str):
-    return "{t}|{u}|{c}|{f}".format(t=unix_time, u=author_name,
-                                    f=filename, c=gource_update_type)
-
-
-def _create_modification(filename: str, author_name: str, timestamp: int):
-    return _create_gource(filename, author_name, timestamp, 'M')
-
-
-def _last_modification(filename: str, author_name: str, timestamp: int):
-    return _create_gource(filename, author_name, timestamp, 'D')
-
-
 def convert_history(modifications: List[Tuple[int, str, str, bool]],
                     sections_extension):
     print("Number of changes: ", len(modifications))
@@ -63,6 +52,7 @@ def convert_history(modifications: List[Tuple[int, str, str, bool]],
 
     try:
         for (timestamp, key, name, is_last_change) in sorted(modifications):
+            # TODO add name conversion for clearing "inactive user" markers
             names.add(name)
             if HIST_CONV_DEBUG:
                 print("{k}: @{t}: {n}".format(
@@ -70,12 +60,7 @@ def convert_history(modifications: List[Tuple[int, str, str, bool]],
                     t=datetime.fromtimestamp(timestamp),
                     n=name))
             filename = get_filename(key)
-            if not is_last_change:
-                gource_list.append(
-                    _create_modification(filename, name, timestamp))
-            else:
-                gource_list.append(
-                    _last_modification(filename, name, timestamp))
+            gource_list.append((timestamp, filename, name, is_last_change))
     except KeyboardInterrupt:
         print("Interrupted by user. Stopping...")
     except Exception as e:
@@ -85,7 +70,7 @@ def convert_history(modifications: List[Tuple[int, str, str, bool]],
         print("Bailing out")
     print("Finished!")
     finish = current_milli_time()
-    print("Converting took {0} ms.".format(finish - start))
+    print("\tConverting took {0} ms.".format(finish - start))
     print("Saving names of committers in '{0}'".format(names_file_path))
     with open(names_file_path, 'w') as f:
         f.write("\n".join(sorted(names)))
