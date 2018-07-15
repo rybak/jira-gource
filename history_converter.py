@@ -8,7 +8,7 @@ HIST_CONV_DEBUG = False
 
 
 def generate_extension(jira_key: str) -> str:
-    issuetype = jira.tickets_json[jira_key]['JIRA']['fields'] \
+    issuetype = jira.get_issue_json(jira_key)['fields'] \
             .get('issuetype', {}) \
             .get('name', "")
     if len(issuetype.strip()) == 0:
@@ -17,12 +17,12 @@ def generate_extension(jira_key: str) -> str:
 
 
 def generate_folder(jira_key: str, extension) -> str:
-    summary = jira.tickets_json[jira_key]['JIRA']['fields']['summary']
+    summary = jira.get_issue_json(jira_key)['fields']['summary']
     sections = list(map(lambda s: s.strip().title(), summary.split(':')))
     sections = sections[:-1]  # remove last bit of summary
     sections = list(filter(lambda s: len(s) < 50, sections))
     if extension is not None:
-        sections = extension(jira.tickets_json[jira_key]['JIRA'], sections)
+        sections = extension(jira.get_issue_json(jira_key), sections)
     # TODO (several projects) replace two lines with
     # TODO sections.insert(0, project_id)
     if len(sections) == 0:
