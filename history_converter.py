@@ -54,20 +54,17 @@ def convert_history(modifications, sections_extension):
     names = read_lines(names_file_path)
     key = None
     try:
-        for (timestamp, key, name) in sorted(modifications):
+        for (timestamp, key, name, is_last_change) in sorted(modifications):
             names.add(name)
             iso_time = iso.parse(timestamp)
             if HIST_CONV_DEBUG:
                 print("{k}: @{t}: {n}".format(k=key, t=iso_time, n=name))
             folder_path = generate_folder(key, sections_extension)
             filename = folder_path + key + generate_extension(key)
-            gource_list.append(_create_modification(filename, name, iso_time))
-
-            # TODO improve output by generating only one gource log line for
-            # TODO the last change
-            # check if it is the last change on the `key` ticket
-            last_change = jira.get_history(key)[-1]
-            if last_change['created'] == timestamp:
+            if not is_last_change:
+                gource_list.append(
+                    _create_modification(filename, name, iso_time))
+            else:
                 gource_list.append(_last_modification(filename, name, iso_time))
     except KeyboardInterrupt:
         print("Interrupted by user. Stopping...")

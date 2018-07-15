@@ -97,7 +97,7 @@ def _get_orig_history(jira_key: str):
     return get_issue_json(jira_key)['changelog']['histories']
 
 
-def get_history(jira_key: str):
+def _get_history(jira_key: str):
     return tickets_json[jira_key]['filtered_history']
 
 
@@ -226,11 +226,12 @@ changes = {}
 project_changes = []
 changes[config.project] = project_changes
 for key in tickets_to_process:
-    history = get_history(key)
-    for h in history:
+    history = _get_history(key)
+    last_index = len(history) - 1
+    for i, h in enumerate(history):
         timestamp = h['created']
         name = h['author']['displayName']
-        project_changes.append((timestamp, key, name))
+        project_changes.append((timestamp, key, name, i == last_index))
 
 print("Saving " + missing_file_path)
 with open(missing_file_path, "w") as f:
