@@ -66,7 +66,7 @@ def convert_history(modifications, sections_extension):
             # TODO improve output by generating only one gource log line for
             # TODO the last change
             # check if it is the last change on the `key` ticket
-            last_change = jira.get_history(jira.tickets_json[key]['JIRA'])[-1]
+            last_change = jira.get_history(key)[-1]
             if last_change['created'] == timestamp:
                 gource_list.append(_last_modification(filename, name, iso_time))
     except KeyboardInterrupt:

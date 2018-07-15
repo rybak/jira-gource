@@ -6,6 +6,7 @@ import requests
 import json
 from datetime import datetime
 import dateutil.parser as iso
+from typing import List
 
 from my_json import load_json, save_json
 from my_os import read_lines
@@ -92,12 +93,16 @@ def pretty_print(json_obj):
     print(str(json.dumps(json_obj, indent=4, separators=(',', ': '))))
 
 
-def get_history(issue_json_obj):
-    return issue_json_obj['changelog']['histories']
+def _get_orig_history(jira_key: str):
+    return get_issue_json(jira_key)['changelog']['histories']
 
 
-def put_history(issue_json_obj, history):
-    issue_json_obj['changelog']['histories'] = history
+def get_history(jira_key: str):
+    return tickets_json[jira_key]['filtered_history']
+
+
+def _put_history(jira_key: str, filtered: List):
+    tickets_json[jira_key]['filtered_history'] = filtered
 
 
 def get_key_str(key_num: int) -> str:
@@ -116,16 +121,15 @@ def clear_key(k):
             tickets_json.pop(k, None)
 
 
-def filter_history(jira_key: str, p) -> None:
-    issue = get_issue_json(jira_key)
-    issue_history = get_history(issue)
+def filtered_history(jira_key: str, p) -> List:
+    issue_history = _get_orig_history(jira_key)
     old_len = len(issue_history)
-    issue_history = list(filter(p, issue_history))
-    new_len = len(issue_history)
-    put_history(issue, issue_history)
+    filtered = list(filter(p, issue_history))
+    new_len = len(filtered)
     if new_len < old_len:
         print("Removed {0} changelog entries for ticket {1}".format(
             old_len - new_len, jira_key))
+    return filtered
 
 
 def is_good_date(skip_dates, changelog_entry):
@@ -199,7 +203,7 @@ for i in range(config.min_key, config.max_key):
         break
     if key not in tickets_json:
         continue
-    filter_history(key, entry_predicate)
+    _put_history(key, filtered_history(key, entry_predicate))
 
 # store all the tickets
 print("Total number of tickets: {0}".format(len(tickets_json)))
@@ -221,8 +225,7 @@ changes = {}
 project_changes = []
 changes[config.project] = project_changes
 for key in tickets_to_process:
-    issue_json = get_issue_json(key)
-    history = get_history(issue_json)
+    history = get_history(key)
     for h in history:
         if 'author' not in h:
             # skipping automated transitions of tickets, e.g. by Bitbucket
