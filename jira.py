@@ -52,6 +52,8 @@ def download_issue(issue_key: str):
     print("Downloading: {}".format(issue_key))
     while True:
         try:
+            # session is initialized lazily to avoid asking for password if
+            # all issues are already downloaded
             init_session()
             r = rest_session.get(issue_url, params=params)
             if JIRA_DEBUG:
@@ -139,6 +141,22 @@ def is_good_date(skip_dates, changelog_entry):
     return iso_date not in skip_dates
 
 
+# config independent
+# Loading caches
+# Note: user can manually add tickets to the missing-tickets.txt to skip them
+missing_file_path = "missing-tickets.txt"
+missing_tickets = read_lines(missing_file_path)
+print("Missing tickets count = {}".format(len(missing_tickets)))
+if JIRA_DEBUG:
+    print("Missing tickets: ", ", ".join(sorted(missing_tickets)))
+rest_session = requests.Session()
+
+params = {
+    'fields': 'key,summary,issuetype',
+    'expand': 'changelog'
+}
+
+
 if len(config.skip_dates) == 0:
     if config.skip_filter is None:
         def entry_predicate(changelog_entry):
@@ -155,25 +173,12 @@ else:
             return is_good_date(config.skip_dates, changelog_entry) and \
                    (not config.skip_filter(changelog_entry))
 
-# Loading caches
-# Note: user can manually add tickets to the missing-tickets.txt to skip them
-missing_file_path = "missing-tickets.txt"
-missing_tickets = read_lines(missing_file_path)
-print("Missing tickets count = {}".format(len(missing_tickets)))
-if JIRA_DEBUG:
-    print("Missing tickets: ", ", ".join(sorted(missing_tickets)))
-
+# config dependent
 tickets_title = config.project + '-tickets'
 tickets_json = load_json(tickets_title)
 if tickets_json is None:
     tickets_json = {}
 
-rest_session = requests.Session()
-
-params = {
-    'fields': 'key,summary,issuetype',
-    'expand': 'changelog'
-}
 if config.extra_fields is not None:
     params['fields'] = params['fields'] + ',' + config.extra_fields
 # Download of tickets
@@ -209,11 +214,6 @@ for i in range(config.min_key, config.max_key):
 print("Total number of tickets: {0}".format(len(tickets_json)))
 save_json(tickets_title, tickets_json)
 
-print("Saving " + missing_file_path)
-with open(missing_file_path, "w") as f:
-    f.write("\n".join(sorted(missing_tickets)))
-print("Saved!")
-
 tickets_to_process = []
 for i in range(config.min_key, config.max_key):
     key = get_key_str(i)
@@ -240,3 +240,8 @@ for key in tickets_to_process:
         timestamp = h['created']
         name = h['author']['displayName']
         project_changes.append((timestamp, key, name))
+
+print("Saving " + missing_file_path)
+with open(missing_file_path, "w") as f:
+    f.write("\n".join(sorted(missing_tickets)))
+print("Saved!")
