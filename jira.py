@@ -116,13 +116,6 @@ def clear_key(k):
             tickets_json.pop(k, None)
 
 
-def get_first_timestamp_or(issue_json_obj) -> str:
-    history_json = get_history(issue_json_obj)
-    if len(history_json) == 0:
-        return "Empty history"
-    return history_json[0]['created']
-
-
 def filter_history(jira_key: str, p) -> None:
     issue = get_issue_json(jira_key)
     issue_history = get_history(issue)
@@ -193,8 +186,6 @@ for i in range(config.min_key, config.max_key):
             # store the ticket. Use 'JIRA' as key for the json part of the JIRA's response
             tickets_json[key] = {}
             tickets_json[key]['JIRA'] = issue_json
-            # show the timestamp of the first item in the history to the user
-            pretty_print(get_first_timestamp_or(issue_json))
             tickets_json[key]['downloaded'] = True
     except KeyboardInterrupt:
         clear_key(key)
