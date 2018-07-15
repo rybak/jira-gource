@@ -1,6 +1,7 @@
-import dateutil.parser as iso
 import traceback
+from datetime import datetime
 from functools import lru_cache
+from typing import List, Tuple
 
 from my_os import current_milli_time, read_lines
 import jira
@@ -31,22 +32,22 @@ def generate_folder(jira_key: str, extension) -> str:
     return '/'.join(sections) + '/'
 
 
-def _create_gource(filename, author_name, unix_time, gource_update_type):
-    return "{t}|{u}|{c}|{f}".format(t=int(unix_time), u=author_name,
+def _create_gource(filename: str, author_name: str, unix_time: int,
+                   gource_update_type: str):
+    return "{t}|{u}|{c}|{f}".format(t=unix_time, u=author_name,
                                     f=filename, c=gource_update_type)
 
 
-def _create_modification(filename, author_name, timestamp):
-    unix_time = timestamp.timestamp()
-    return _create_gource(filename, author_name, unix_time, 'M')
+def _create_modification(filename: str, author_name: str, timestamp: int):
+    return _create_gource(filename, author_name, timestamp, 'M')
 
 
-def _last_modification(filename, author_name, timestamp):
-    unix_time = timestamp.timestamp()
-    return _create_gource(filename, author_name, unix_time, 'D')
+def _last_modification(filename: str, author_name: str, timestamp: int):
+    return _create_gource(filename, author_name, timestamp, 'D')
 
 
-def convert_history(modifications, sections_extension):
+def convert_history(modifications: List[Tuple[int, str, str, bool]],
+                    sections_extension):
     print("Number of changes: ", len(modifications))
     print("Converting history...")
     gource_list = []
@@ -63,15 +64,18 @@ def convert_history(modifications, sections_extension):
     try:
         for (timestamp, key, name, is_last_change) in sorted(modifications):
             names.add(name)
-            iso_time = iso.parse(timestamp)
             if HIST_CONV_DEBUG:
-                print("{k}: @{t}: {n}".format(k=key, t=iso_time, n=name))
+                print("{k}: @{t}: {n}".format(
+                    k=key,
+                    t=datetime.fromtimestamp(timestamp),
+                    n=name))
             filename = get_filename(key)
             if not is_last_change:
                 gource_list.append(
-                    _create_modification(filename, name, iso_time))
+                    _create_modification(filename, name, timestamp))
             else:
-                gource_list.append(_last_modification(filename, name, iso_time))
+                gource_list.append(
+                    _last_modification(filename, name, timestamp))
     except KeyboardInterrupt:
         print("Interrupted by user. Stopping...")
     except Exception as e:

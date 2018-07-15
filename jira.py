@@ -105,7 +105,7 @@ def _put_history(jira_key: str, filtered: List):
     history = []
     last_index = len(filtered) - 1
     for i, h in enumerate(filtered):
-        timestamp = h['created']
+        timestamp = int(iso.parse(h['created']).timestamp())
         name = h['author']['displayName']
         history.append((timestamp, jira_key, name, i == last_index))
     tickets_json[jira_key]['filtered_history'] = history
