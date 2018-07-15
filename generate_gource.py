@@ -2,7 +2,8 @@ import jira
 from history_converter import convert_history
 import config
 
-gource_list = convert_history(jira.changes[config.project])
+gource_list = convert_history(jira.changes[config.project],
+                              config.sections_extension)
 
 gource_input_txt = "gource-input-{0}.txt".format(config.project)
 try:

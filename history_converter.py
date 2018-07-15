@@ -3,7 +3,6 @@ import traceback
 
 from my_os import current_milli_time, read_lines
 import jira
-import config
 
 HIST_CONV_DEBUG = False
 
@@ -17,13 +16,13 @@ def generate_extension(jira_key: str) -> str:
     return "." + issuetype.replace(" ", "")
 
 
-def generate_folder(jira_key: str) -> str:
+def generate_folder(jira_key: str, extension) -> str:
     summary = jira.tickets_json[jira_key]['JIRA']['fields']['summary']
     sections = list(map(lambda s: s.strip().title(), summary.split(':')))
     sections = sections[:-1]  # remove last bit of summary
     sections = list(filter(lambda s: len(s) < 50, sections))
-    if config.sections_extension is not None:
-        sections = config.sections_extension(jira.tickets_json[jira_key]['JIRA'], sections)
+    if extension is not None:
+        sections = extension(jira.tickets_json[jira_key]['JIRA'], sections)
     # TODO (several projects) replace two lines with
     # TODO sections.insert(0, project_id)
     if len(sections) == 0:
@@ -46,7 +45,7 @@ def _last_modification(filename, author_name, timestamp):
     return _create_gource(filename, author_name, unix_time, 'D')
 
 
-def convert_history(modifications):
+def convert_history(modifications, sections_extension):
     print("Number of changes: ", len(modifications))
     print("Converting history...")
     gource_list = []
@@ -60,7 +59,8 @@ def convert_history(modifications):
             iso_time = iso.parse(timestamp)
             if HIST_CONV_DEBUG:
                 print("{k}: @{t}: {n}".format(k=key, t=iso_time, n=name))
-            filename = generate_folder(key) + key + generate_extension(key)
+            folder_path = generate_folder(key, sections_extension)
+            filename = folder_path + key + generate_extension(key)
             gource_list.append(_create_modification(filename, name, iso_time))
 
             # TODO improve output by generating only one gource log line for
