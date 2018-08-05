@@ -174,7 +174,8 @@ else:
                    (not config.skip_filter(changelog_entry))
 
 # config dependent
-tickets_title = config.project + '-tickets'
+project_id = config.project
+tickets_title = project_id + '-tickets'
 tickets_json = load_json(tickets_title)
 if tickets_json is None:
     tickets_json = {}
@@ -183,7 +184,7 @@ if config.extra_fields is not None:
     params['fields'] = params['fields'] + ',' + config.extra_fields
 # Download of tickets
 for i in range(config.min_key, config.max_key):
-    key = get_key_str(config.project, i)
+    key = get_key_str(project_id, i)
     if key in missing_tickets:
         print("Skipping missing ticket {}".format(key))
         continue
@@ -218,7 +219,7 @@ save_json(tickets_title, tickets_json)
 
 tickets_to_process = []
 for i in range(config.min_key, config.max_key):
-    key = get_key_str(config.project, i)
+    key = get_key_str(project_id, i)
     if key not in tickets_json:
         continue
     issue_json = get_issue_json(tickets_json, key)
@@ -230,7 +231,7 @@ for i in range(config.min_key, config.max_key):
 # Gather all change logs into one map
 changes = {}
 project_changes = []
-changes[config.project] = project_changes
+changes[project_id] = project_changes
 for key in tickets_to_process:
     history = _pop_history(tickets_json, key)
     project_changes.extend(history)
