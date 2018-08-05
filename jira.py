@@ -157,21 +157,22 @@ params = {
 }
 
 
-if len(config.skip_dates) == 0:
-    if config.skip_filter is None:
+skip_dates = config.skip_dates
+skip_filter = config.skip_filter
+if len(skip_dates) == 0:
+    if skip_filter is None:
         def entry_predicate(changelog_entry):
             return True
     else:
         def entry_predicate(changelog_entry):
-            return not config.skip_filter(changelog_entry)
+            return not skip_filter(changelog_entry)
 else:
-    if config.skip_filter is None:
+    if skip_filter is None:
         def entry_predicate(changelog_entry):
-            return is_good_date(config.skip_dates, changelog_entry)
+            return is_good_date(skip_dates, changelog_entry)
     else:
         def entry_predicate(changelog_entry):
-            return is_good_date(config.skip_dates, changelog_entry) and \
-                   (not config.skip_filter(changelog_entry))
+            return is_good_date(skip_dates, changelog_entry) and (not skip_filter(changelog_entry))
 
 # config dependent
 project_id = config.project
