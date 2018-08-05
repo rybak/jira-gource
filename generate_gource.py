@@ -18,7 +18,8 @@ def to_str(t) -> str:
     return _create_gource(*t)
 
 
-gource_list = convert_history(jira.tickets_json, jira.changes[config.project],
+changes, tickets_json = jira.download_project(config.project)
+gource_list = convert_history(tickets_json, changes,
                               config.sections_extension)
 
 gource_input_txt = "gource-input-{0}.txt".format(config.project)

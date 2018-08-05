@@ -155,91 +155,96 @@ params = {
     'fields': 'key,summary,issuetype',
     'expand': 'changelog'
 }
-
-
-skip_dates = config.skip_dates
-skip_filter = config.skip_filter
-if len(skip_dates) == 0:
-    if skip_filter is None:
-        def entry_predicate(changelog_entry):
-            return True
-    else:
-        def entry_predicate(changelog_entry):
-            return not skip_filter(changelog_entry)
-else:
-    if skip_filter is None:
-        def entry_predicate(changelog_entry):
-            return is_good_date(skip_dates, changelog_entry)
-    else:
-        def entry_predicate(changelog_entry):
-            return is_good_date(skip_dates, changelog_entry) and (not skip_filter(changelog_entry))
-
-# config dependent
-project_id = config.project
-min_key = config.min_key
-max_key = config.max_key
-tickets_title = project_id + '-tickets'
-tickets_json = load_json(tickets_title)
-if tickets_json is None:
-    tickets_json = {}
-
-if config.extra_fields is not None:
-    params['fields'] = params['fields'] + ',' + config.extra_fields
-# Download of tickets
-for i in range(min_key, max_key):
-    key = get_key_str(project_id, i)
-    if key in missing_tickets:
-        print("Skipping missing ticket {}".format(key))
-        continue
-    try:
-        if key not in tickets_json:
-            issue_json = download_issue(key)
-            if issue_json is None:
-                # could not download issue
-                clear_key(tickets_json, key)
-                continue
-            # store the ticket. Use 'JIRA' as key for the json part of the JIRA's response
-            tickets_json[key] = {}
-            tickets_json[key]['JIRA'] = issue_json
-            tickets_json[key]['downloaded'] = True
-    except KeyboardInterrupt:
-        clear_key(tickets_json, key)
-        print("Interrupted by the user")
-        break
-    except Exception as e:
-        clear_key(tickets_json, key)
-        print("Unexpected exception: ", e)
-        print("Key: ", key)
-        print("Bailing out")
-        break
-    if key not in tickets_json:
-        continue
-    _put_history(tickets_json, key, filtered_history(tickets_json, key, entry_predicate))
-
-# store all the tickets
-print("Total number of tickets: {0}".format(len(tickets_json)))
-save_json(tickets_title, tickets_json)
-
-tickets_to_process = []
-for i in range(min_key, max_key):
-    key = get_key_str(project_id, i)
-    if key not in tickets_json:
-        continue
-    issue_json = get_issue_json(tickets_json, key)
-    if JIRA_DEBUG:
-        print("Ticket : " + key)
-        pretty_print(issue_json)
-    tickets_to_process.append(key)
-
 # Gather all change logs into one map
-changes = {}
-project_changes = []
-changes[project_id] = project_changes
-for key in tickets_to_process:
-    history = _pop_history(tickets_json, key)
-    project_changes.extend(history)
+projects = {}
 
-print("Saving " + missing_file_path)
-with open(missing_file_path, "w") as f:
-    f.write("\n".join(sorted(missing_tickets)))
-print("Saved!")
+
+def download_project(project_id: str):
+    if project_id in projects:
+        return projects[project_id]
+
+    skip_dates = config.skip_dates
+    skip_filter = config.skip_filter
+    if len(skip_dates) == 0:
+        if skip_filter is None:
+            def entry_predicate(changelog_entry):
+                return True
+        else:
+            def entry_predicate(changelog_entry):
+                return not skip_filter(changelog_entry)
+    else:
+        if skip_filter is None:
+            def entry_predicate(changelog_entry):
+                return is_good_date(skip_dates, changelog_entry)
+        else:
+            def entry_predicate(changelog_entry):
+                return is_good_date(skip_dates, changelog_entry) and (not skip_filter(changelog_entry))
+
+    # config dependent
+    project_id = config.project
+    min_key = config.min_key
+    max_key = config.max_key
+    tickets_title = project_id + '-tickets'
+    tickets_json = load_json(tickets_title)
+    if tickets_json is None:
+        tickets_json = {}
+
+    if config.extra_fields is not None:
+        params['fields'] = params['fields'] + ',' + config.extra_fields
+    # Download of tickets
+    for i in range(min_key, max_key):
+        key = get_key_str(project_id, i)
+        if key in missing_tickets:
+            print("Skipping missing ticket {}".format(key))
+            continue
+        try:
+            if key not in tickets_json:
+                issue_json = download_issue(key)
+                if issue_json is None:
+                    # could not download issue
+                    clear_key(tickets_json, key)
+                    continue
+                # store the ticket. Use 'JIRA' as key for the json part of the JIRA's response
+                tickets_json[key] = {}
+                tickets_json[key]['JIRA'] = issue_json
+                tickets_json[key]['downloaded'] = True
+        except KeyboardInterrupt:
+            clear_key(tickets_json, key)
+            print("Interrupted by the user")
+            break
+        except Exception as e:
+            clear_key(tickets_json, key)
+            print("Unexpected exception: ", e)
+            print("Key: ", key)
+            print("Bailing out")
+            break
+        if key not in tickets_json:
+            continue
+        _put_history(tickets_json, key, filtered_history(tickets_json, key, entry_predicate))
+
+    # store all the tickets
+    print("Total number of tickets: {0}".format(len(tickets_json)))
+    save_json(tickets_title, tickets_json)
+
+    tickets_to_process = []
+    for i in range(min_key, max_key):
+        key = get_key_str(project_id, i)
+        if key not in tickets_json:
+            continue
+        issue_json = get_issue_json(tickets_json, key)
+        if JIRA_DEBUG:
+            print("Ticket : " + key)
+            pretty_print(issue_json)
+        tickets_to_process.append(key)
+
+    project_changes = []
+    projects[project_id] = (project_changes, tickets_json)
+    for key in tickets_to_process:
+        history = _pop_history(tickets_json, key)
+        project_changes.extend(history)
+
+    print("Saving " + missing_file_path)
+    with open(missing_file_path, "w") as f:
+        f.write("\n".join(sorted(missing_tickets)))
+    print("Saved!")
+    return projects[project_id]
