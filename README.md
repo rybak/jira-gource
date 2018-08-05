@@ -43,7 +43,7 @@ The script's input is provided through a `config.py` file.  You need to provide:
 * By default, script only downloads ticket's summary and changelog.  To make
   an interesting `sections_extension` function, you might need some other
   fields of the ticket.  This can be done by specifying these fields in config
-  variable `extra_fields`.
+  variable `extra_fields` as a list of strings.
 
 Some helper functions are defined in `configlib.py` to make writing logic for
 `config.py` easier.  All of these function operate on some JSON objects, like
@@ -126,7 +126,6 @@ TODO
   to the first parameter of Python's `filter` builtin.
 * Retire `skip_dates`, as `skip_filter` is much more versatile.  In the sample
   `skip_dates` logic could be included into `skip_filter`.
-* Refactor `config.extra_fields`.
 * Rename `sections_extension` to something sensible.
 * Clean up and document the code.
 * Write release notes

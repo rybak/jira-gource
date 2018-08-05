@@ -63,5 +63,4 @@ sections_extension = None
 extra_fields = ''
 if project == 'JRASERVER':
     sections_extension = sections_extension_jira_server
-    # comma separated string
-    extra_fields = ','.join([JIRA_SERVER_COMPONENTS_KEY])
+    extra_fields = [JIRA_SERVER_COMPONENTS_KEY]

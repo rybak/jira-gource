@@ -151,7 +151,7 @@ if JIRA_DEBUG:
     print("Missing tickets: ", ", ".join(sorted(missing_tickets)))
 rest_session = requests.Session()
 
-default_fields = 'key,summary,issuetype'
+default_fields = {'key', 'summary', 'issuetype'}
 # Gather all change logs into one map
 projects = {}
 
@@ -182,6 +182,7 @@ def download_project(project_id: str):
     min_key = config.min_key
     max_key = config.max_key
     extra_fields = config.extra_fields or ''
+    fields = ','.join(default_fields.union(set(extra_fields)))
     tickets_title = project_id + '-tickets'
     tickets_json = load_json(tickets_title)
     if tickets_json is None:
