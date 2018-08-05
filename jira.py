@@ -43,7 +43,7 @@ def init_session() -> None:
     rest_session.verify = config.verify
 
 
-def download_issue(issue_key: str):
+def download_issue(issue_key: str, fields):
     result = None
     issue_url = get_issue_url(issue_key)
     print(datetime.now())
@@ -53,7 +53,7 @@ def download_issue(issue_key: str):
             # session is initialized lazily to avoid asking for password if
             # all issues are already downloaded
             init_session()
-            r = rest_session.get(issue_url, params=params)
+            r = rest_session.get(issue_url, params={'fields': fields, 'expand': 'changelog'})
             if JIRA_DEBUG:
                 pretty_print(r.json())
             if r.status_code != 200:
@@ -151,10 +151,7 @@ if JIRA_DEBUG:
     print("Missing tickets: ", ", ".join(sorted(missing_tickets)))
 rest_session = requests.Session()
 
-params = {
-    'fields': 'key,summary,issuetype',
-    'expand': 'changelog'
-}
+default_fields = 'key,summary,issuetype'
 # Gather all change logs into one map
 projects = {}
 
@@ -184,13 +181,12 @@ def download_project(project_id: str):
     project_id = config.project
     min_key = config.min_key
     max_key = config.max_key
+    extra_fields = config.extra_fields or ''
     tickets_title = project_id + '-tickets'
     tickets_json = load_json(tickets_title)
     if tickets_json is None:
         tickets_json = {}
 
-    if config.extra_fields is not None:
-        params['fields'] = params['fields'] + ',' + config.extra_fields
     # Download of tickets
     for i in range(min_key, max_key):
         key = get_key_str(project_id, i)
@@ -199,7 +195,7 @@ def download_project(project_id: str):
             continue
         try:
             if key not in tickets_json:
-                issue_json = download_issue(key)
+                issue_json = download_issue(key, fields)
                 if issue_json is None:
                     # could not download issue
                     clear_key(tickets_json, key)
