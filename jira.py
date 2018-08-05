@@ -44,9 +44,6 @@ def init_session() -> None:
 
 
 def download_issue(issue_key: str):
-    if issue_key in missing_tickets:
-        print("Skipping missing ticket {}".format(issue_key))
-        return None
     result = None
     issue_url = get_issue_url(issue_key)
     print(datetime.now())
@@ -188,6 +185,9 @@ if config.extra_fields is not None:
 # Download of tickets
 for i in range(config.min_key, config.max_key):
     key = get_key_str(i)
+    if key in missing_tickets:
+        print("Skipping missing ticket {}".format(key))
+        continue
     try:
         if key not in tickets_json:
             issue_json = download_issue(key)
