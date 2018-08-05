@@ -89,15 +89,15 @@ def pretty_print(json_obj):
     print(str(json.dumps(json_obj, indent=4, separators=(',', ': '))))
 
 
-def _get_orig_history(jira_key: str):
-    return get_issue_json(jira_key)['changelog']['histories']
+def _get_orig_history(tickets_json, jira_key: str):
+    return get_issue_json(tickets_json, jira_key)['changelog']['histories']
 
 
-def _pop_history(jira_key: str):
+def _pop_history(tickets_json, jira_key: str):
     return tickets_json[jira_key].pop('filtered_history')
 
 
-def _put_history(jira_key: str, filtered: List):
+def _put_history(tickets_json, jira_key: str, filtered: List):
     history = []
     last_index = len(filtered) - 1
     for i, h in enumerate(filtered):
@@ -107,24 +107,24 @@ def _put_history(jira_key: str, filtered: List):
     tickets_json[jira_key]['filtered_history'] = history
 
 
-def get_key_str(key_num: int) -> str:
-    return config.project + '-' + str(key_num)
+def get_key_str(project_id: str, key_num: int) -> str:
+    return project_id + '-' + str(key_num)
 
 
-def get_issue_json(k: str):
+def get_issue_json(tickets_json, k: str):
     if k not in tickets_json:
         return None
     return tickets_json[k]['JIRA']
 
 
-def clear_key(k):
+def clear_key(tickets_json, k):
     if k in tickets_json:
         if 'downloaded' not in tickets_json[k]:
             tickets_json.pop(k, None)
 
 
-def filtered_history(jira_key: str, p) -> List:
-    issue_history = _get_orig_history(jira_key)
+def filtered_history(tickets_json, jira_key: str, p) -> List:
+    issue_history = _get_orig_history(tickets_json, jira_key)
     old_len = len(issue_history)
     # automated transitions of issues, e.g. by Bitbucket, do not have author
     filtered = list(filter(lambda h: 'author' in h and p(h), issue_history))
@@ -183,7 +183,7 @@ if config.extra_fields is not None:
     params['fields'] = params['fields'] + ',' + config.extra_fields
 # Download of tickets
 for i in range(config.min_key, config.max_key):
-    key = get_key_str(i)
+    key = get_key_str(config.project, i)
     if key in missing_tickets:
         print("Skipping missing ticket {}".format(key))
         continue
@@ -192,25 +192,25 @@ for i in range(config.min_key, config.max_key):
             issue_json = download_issue(key)
             if issue_json is None:
                 # could not download issue
-                clear_key(key)
+                clear_key(tickets_json, key)
                 continue
             # store the ticket. Use 'JIRA' as key for the json part of the JIRA's response
             tickets_json[key] = {}
             tickets_json[key]['JIRA'] = issue_json
             tickets_json[key]['downloaded'] = True
     except KeyboardInterrupt:
-        clear_key(key)
+        clear_key(tickets_json, key)
         print("Interrupted by the user")
         break
     except Exception as e:
-        clear_key(key)
+        clear_key(tickets_json, key)
         print("Unexpected exception: ", e)
         print("Key: ", key)
         print("Bailing out")
         break
     if key not in tickets_json:
         continue
-    _put_history(key, filtered_history(key, entry_predicate))
+    _put_history(tickets_json, key, filtered_history(tickets_json, key, entry_predicate))
 
 # store all the tickets
 print("Total number of tickets: {0}".format(len(tickets_json)))
@@ -218,10 +218,10 @@ save_json(tickets_title, tickets_json)
 
 tickets_to_process = []
 for i in range(config.min_key, config.max_key):
-    key = get_key_str(i)
+    key = get_key_str(config.project, i)
     if key not in tickets_json:
         continue
-    issue_json = get_issue_json(key)
+    issue_json = get_issue_json(tickets_json, key)
     if JIRA_DEBUG:
         print("Ticket : " + key)
         pretty_print(issue_json)
@@ -232,7 +232,7 @@ changes = {}
 project_changes = []
 changes[config.project] = project_changes
 for key in tickets_to_process:
-    history = _pop_history(key)
+    history = _pop_history(tickets_json, key)
     project_changes.extend(history)
 
 print("Saving " + missing_file_path)

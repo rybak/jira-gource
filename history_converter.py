@@ -12,8 +12,8 @@ import jira
 HIST_CONV_DEBUG = False
 
 
-def generate_extension(jira_key: str) -> str:
-    issuetype = jira.get_issue_json(jira_key)['fields'] \
+def generate_extension(tickets_json, jira_key: str) -> str:
+    issuetype = jira.get_issue_json(tickets_json, jira_key)['fields'] \
             .get('issuetype', {}) \
             .get('name', "")
     if len(issuetype.strip()) == 0:
@@ -21,13 +21,13 @@ def generate_extension(jira_key: str) -> str:
     return "." + issuetype.replace(" ", "")
 
 
-def generate_folder(jira_key: str, extension) -> str:
-    summary = jira.get_issue_json(jira_key)['fields']['summary']
+def generate_folder(tickets_json, jira_key: str, extension) -> str:
+    summary = jira.get_issue_json(tickets_json, jira_key)['fields']['summary']
     sections = list(map(lambda s: s.strip().title(), summary.split(':')))
     sections = sections[:-1]  # remove last bit of summary
     sections = list(filter(lambda s: len(s) < 50, sections))
     if extension is not None:
-        sections = extension(jira.get_issue_json(jira_key), sections)
+        sections = extension(jira.get_issue_json(tickets_json, jira_key), sections)
     # TODO (several projects) replace two lines with
     # TODO sections.insert(0, project_id)
     if len(sections) == 0:
@@ -35,7 +35,8 @@ def generate_folder(jira_key: str, extension) -> str:
     return '/'.join(sections) + '/'
 
 
-def convert_history(modifications: List[Tuple[int, str, str, bool]],
+def convert_history(tickets_json,
+                    modifications: List[Tuple[int, str, str, bool]],
                     sections_extension):
     print("Number of changes: ", len(modifications))
     print("Converting history...")
@@ -47,8 +48,8 @@ def convert_history(modifications: List[Tuple[int, str, str, bool]],
 
     @lru_cache(maxsize=50000)
     def get_filename(jira_key: str) -> str:
-        folder_path = generate_folder(jira_key, sections_extension)
-        return folder_path + jira_key + generate_extension(jira_key)
+        folder_path = generate_folder(tickets_json, jira_key, sections_extension)
+        return folder_path + jira_key + generate_extension(tickets_json, jira_key)
 
     try:
         for (timestamp, key, name, is_last_change) in sorted(modifications):
