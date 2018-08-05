@@ -136,10 +136,10 @@ def filtered_history(jira_key: str, p) -> List:
     return filtered
 
 
-def is_good_date(skip_dates, changelog_entry):
+def is_good_date(bad_dates, changelog_entry):
     t = changelog_entry['created']
     iso_date = iso.parse(t).date()
-    return iso_date not in skip_dates
+    return iso_date not in bad_dates
 
 
 # config independent
