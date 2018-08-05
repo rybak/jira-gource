@@ -175,6 +175,8 @@ else:
 
 # config dependent
 project_id = config.project
+min_key = config.min_key
+max_key = config.max_key
 tickets_title = project_id + '-tickets'
 tickets_json = load_json(tickets_title)
 if tickets_json is None:
@@ -183,7 +185,7 @@ if tickets_json is None:
 if config.extra_fields is not None:
     params['fields'] = params['fields'] + ',' + config.extra_fields
 # Download of tickets
-for i in range(config.min_key, config.max_key):
+for i in range(min_key, max_key):
     key = get_key_str(project_id, i)
     if key in missing_tickets:
         print("Skipping missing ticket {}".format(key))
@@ -218,7 +220,7 @@ print("Total number of tickets: {0}".format(len(tickets_json)))
 save_json(tickets_title, tickets_json)
 
 tickets_to_process = []
-for i in range(config.min_key, config.max_key):
+for i in range(min_key, max_key):
     key = get_key_str(project_id, i)
     if key not in tickets_json:
         continue
