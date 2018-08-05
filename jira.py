@@ -77,7 +77,6 @@ def download_issue(issue_key: str):
                 result = r.json()
                 break  # whatever, still can return the json
         except requests.exceptions.ConnectionError as ce:
-            clear_key(key)
             print("Connection error: {}".format(ce))
             print("You might need to define 'verify' in config.py.")
             print("Current value: config.verify =", config.verify)
@@ -193,6 +192,7 @@ for i in range(config.min_key, config.max_key):
             issue_json = download_issue(key)
             if issue_json is None:
                 # could not download issue
+                clear_key(key)
                 continue
             # store the ticket. Use 'JIRA' as key for the json part of the JIRA's response
             tickets_json[key] = {}
