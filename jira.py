@@ -159,9 +159,13 @@ projects = {}
 def download_project(project_id: str):
     if project_id in projects:
         return projects[project_id]
+    if project_id not in config.projects:
+        print("ERROR: missing project '{}' in config.py".format(project_id))
+        return {}
 
-    skip_dates = config.skip_dates
-    skip_filter = config.skip_filter
+    project_config = config.projects[project_id]
+    skip_dates = project_config['skip_dates']
+    skip_filter = project_config['skip_filter']
     if len(skip_dates) == 0:
         if skip_filter is None:
             def entry_predicate(changelog_entry):
@@ -178,10 +182,9 @@ def download_project(project_id: str):
                 return is_good_date(skip_dates, changelog_entry) and (not skip_filter(changelog_entry))
 
     # config dependent
-    project_id = config.project
-    min_key = config.min_key
-    max_key = config.max_key
-    extra_fields = config.extra_fields or ''
+    min_key = project_config['min_key']
+    max_key = project_config['max_key']
+    extra_fields = project_config['extra_fields'] or ''
     fields = ','.join(default_fields.union(set(extra_fields)))
     tickets_title = project_id + '-tickets'
     tickets_json = load_json(tickets_title)

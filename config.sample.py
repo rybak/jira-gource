@@ -9,14 +9,6 @@ jira_url = "https://jira.atlassian.com"
 # <http://docs.python-requests.org/en/master/user/advanced/#ssl-cert-verification>
 verify = True
 
-project = 'JRASERVER'
-min_key = 1
-max_key = 1000
-
-skip_dates = {
-    date(1980, 1, 1),  # big ticket move
-}
-
 
 def skip_filter(changelog_entry) -> bool:
     """
@@ -59,8 +51,17 @@ def sections_extension_jira_server(issue_json, sections):
     return extra_sections + sections
 
 
-sections_extension = None
-extra_fields = ''
-if project == 'JRASERVER':
-    sections_extension = sections_extension_jira_server
-    extra_fields = [JIRA_SERVER_COMPONENTS_KEY]
+jira_server_project = {
+    'min_key': 1,
+    'max_key': 1000,
+    'skip_dates': {
+        date(1980, 1, 1),  # big ticket move
+    },
+    'skip_filter': skip_filter,
+    'sections_extension': sections_extension_jira_server,
+    'extra_fields': [JIRA_SERVER_COMPONENTS_KEY]
+}
+
+projects = {
+    'JRASERVER': jira_server_project
+}

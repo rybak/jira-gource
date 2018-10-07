@@ -18,11 +18,12 @@ def to_str(t) -> str:
     return _create_gource(*t)
 
 
-changes, tickets_json = jira.download_project(config.project)
+project_id = list(config.projects.keys())[0]
+changes, tickets_json = jira.download_project(project_id)
 gource_list = convert_history(tickets_json, changes,
-                              config.sections_extension)
+                              config.projects[project_id].get('sections_extension', None))
 
-gource_input_txt = "gource-input-{0}.txt".format(config.project)
+gource_input_txt = "gource-input-{0}.txt".format(project_id)
 try:
     start = current_milli_time()
     with open(gource_input_txt, "w", encoding='utf-8') as gource_file:

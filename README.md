@@ -23,27 +23,28 @@ The script's input is provided through a `config.py` file.  You need to provide:
 
 * URL to the JIRA server
 * JIRA login to use with REST API
-* ID of the project
-* Two integers `min_key` and `max_key`—bounds of the issue keys to download
-* Optional `skip_filter`—a function which takes a changelog entry and returns
-  a boolean—whether or not the changelog entry should be skipped in the
-  output.  Use `None`, if you do not want to define a `skip_filter`.
-* `skip_dates`—a set of dates, which you wish to skip in the output.
-  Suggestions for dates to skip:
+* `projects` map with config for every JIRA projects to download
+* Every project config consists of:
+  * Two integers `min_key` and `max_key`—bounds of the issue keys to download
+  * Optional `skip_filter`—a function which takes a changelog entry and returns
+    a boolean—whether or not the changelog entry should be skipped in the
+    output.  Use `None`, if you do not want to define a `skip_filter`.
+  * `skip_dates`—a set of dates, which you wish to skip in the output.
+    Suggestions for dates to skip:
 
-    * workflow transition—when all tickets have one field updated
-    * big assignee transition—when a lot of tickets are reassigned
+      * workflow transition—when all tickets have one field updated
+      * big assignee transition—when a lot of tickets are reassigned
 
-  These kinds of changes touch a lot of tickets and thus make for a bad
-  visualization of JIRA history.  Use `set()` (empty set) if you do not want to
-  skip any changelog entries.
+    These kinds of changes touch a lot of tickets and thus make for a bad
+    visualization of JIRA history.  Use `set()` (empty set) if you do not want to
+    skip any changelog entries.
 
-* Optional `sections_extension`—a function to extend (or completely change)
-  the default "fake folder" path for tickets.
-* By default, script only downloads ticket's summary and changelog.  To make
-  an interesting `sections_extension` function, you might need some other
-  fields of the ticket.  This can be done by specifying these fields in config
-  variable `extra_fields` as a list of strings.
+  * Optional `sections_extension`—a function to extend (or completely change)
+    the default "fake folder" path for tickets.
+  * By default, script only downloads ticket's summary and changelog.  To make
+    an interesting `sections_extension` function, you might need some other
+    fields of the ticket.  This can be done by specifying these fields in config
+    variable `extra_fields` as a list of strings.
 
 Some helper functions are defined in `configlib.py` to make writing logic for
 `config.py` easier.  All of these function operate on some JSON objects, like
