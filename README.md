@@ -116,13 +116,6 @@ TODO
 
 * Download avatars directly from JIRA server using URL of the following form
   `<JIRA-SERVER>/jira/secure/useravatar?size=large&ownerId=fred`
-* Add ability to download several projects at once, and a way to combine
-  several histories into one, perhaps grouping them in folders by project key
-  (or a more detailed project name, see
-  [GET project](https://docs.atlassian.com/software/jira/docs/api/REST/7.6.1/#api/2/project-getProject)),
-  to complement the existing partition by summary prefixes (see function
-  `generate_folder()` in `history_converter.py`) and custom folder (see
-  description of `sections_extension` in "Input" section).
 * Flip boolean logic from `skip_filter` to `changelog_predicate`, to correspond
   to the first parameter of Python's `filter` builtin.
 * Retire `skip_dates`, as `skip_filter` is much more versatile.  In the sample

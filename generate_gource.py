@@ -18,12 +18,17 @@ def to_str(t) -> str:
     return _create_gource(*t)
 
 
-project_id = list(config.projects.keys())[0]
-changes, tickets_json = jira.download_project(project_id)
-gource_list = convert_history(tickets_json, changes,
-                              config.projects[project_id].get('sections_extension', None))
+changes, tickets_json = jira.download_projects(list(config.projects.keys()))
+gource_list = []
+for project_id in config.projects:
+    project_changes = changes[project_id]
+    project_gource_list = convert_history(tickets_json,
+                                          project_id, project_changes,
+                                          config.projects[project_id].get('sections_extension', None))
+    gource_list.extend(project_gource_list)
+gource_list = sorted(gource_list)
 
-gource_input_txt = "gource-input-{0}.txt".format(project_id)
+gource_input_txt = 'gource-input.txt'
 try:
     start = current_milli_time()
     with open(gource_input_txt, "w", encoding='utf-8') as gource_file:
@@ -38,3 +43,5 @@ except KeyboardInterrupt:
 except Exception as e:
     print("Unexpected exception", e)
     print("Bailing out")
+finally:
+    jira.save_cache()

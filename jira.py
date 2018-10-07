@@ -149,6 +149,13 @@ missing_tickets = read_lines(missing_file_path)
 print("Missing tickets count = {}".format(len(missing_tickets)))
 if JIRA_DEBUG:
     print("Missing tickets: ", ", ".join(sorted(missing_tickets)))
+
+# Loading tickets cache
+tickets_title = 'tickets'
+tickets_json = load_json(tickets_title)
+if tickets_json is None:
+    tickets_json = {}
+
 rest_session = requests.Session()
 
 default_fields = {'key', 'summary', 'issuetype'}
@@ -186,10 +193,6 @@ def download_project(project_id: str):
     max_key = project_config['max_key']
     extra_fields = project_config['extra_fields'] or ''
     fields = ','.join(default_fields.union(set(extra_fields)))
-    tickets_title = project_id + '-tickets'
-    tickets_json = load_json(tickets_title)
-    if tickets_json is None:
-        tickets_json = {}
 
     # Download of tickets
     for i in range(min_key, max_key):
@@ -222,10 +225,6 @@ def download_project(project_id: str):
             continue
         _put_history(tickets_json, key, filtered_history(tickets_json, key, entry_predicate))
 
-    # store all the tickets
-    print("Total number of tickets: {0}".format(len(tickets_json)))
-    save_json(tickets_title, tickets_json)
-
     tickets_to_process = []
     for i in range(min_key, max_key):
         key = get_key_str(project_id, i)
@@ -238,13 +237,24 @@ def download_project(project_id: str):
         tickets_to_process.append(key)
 
     project_changes = []
-    projects[project_id] = (project_changes, tickets_json)
+    projects[project_id] = project_changes
     for key in tickets_to_process:
         history = _pop_history(tickets_json, key)
         project_changes.extend(history)
+    return projects[project_id]
 
+
+def download_projects(project_ids: List[str]):
+    for project_id in project_ids:
+        download_project(project_id)
+    return projects, tickets_json
+
+
+def save_cache():
+    # store all the tickets
+    print("Total number of tickets: {0}".format(len(tickets_json)))
+    save_json(tickets_title, tickets_json)
     print("Saving " + missing_file_path)
     with open(missing_file_path, "w") as f:
         f.write("\n".join(sorted(missing_tickets)))
     print("Saved!")
-    return projects[project_id]

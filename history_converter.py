@@ -21,21 +21,19 @@ def generate_extension(tickets_json, jira_key: str) -> str:
     return "." + issuetype.replace(" ", "")
 
 
-def generate_folder(tickets_json, jira_key: str, extension) -> str:
+def generate_folder(tickets_json, project_id: str, jira_key: str, extension) -> str:
     summary = jira.get_issue_json(tickets_json, jira_key)['fields']['summary']
     sections = list(map(lambda s: s.strip().title(), summary.split(':')))
     sections = sections[:-1]  # remove last bit of summary
     sections = list(filter(lambda s: len(s) < 50, sections))
     if extension is not None:
         sections = extension(jira.get_issue_json(tickets_json, jira_key), sections)
-    # TODO (several projects) replace two lines with
-    # TODO sections.insert(0, project_id)
-    if len(sections) == 0:
-        return ""
+    sections.insert(0, project_id)
     return '/'.join(sections) + '/'
 
 
 def convert_history(tickets_json,
+                    project_id: str,
                     modifications: List[Tuple[int, str, str, bool]],
                     sections_extension):
     print("Number of changes: ", len(modifications))
@@ -48,7 +46,7 @@ def convert_history(tickets_json,
 
     @lru_cache(maxsize=50000)
     def get_filename(jira_key: str) -> str:
-        folder_path = generate_folder(tickets_json, jira_key, sections_extension)
+        folder_path = generate_folder(tickets_json, project_id, jira_key, sections_extension)
         return folder_path + jira_key + generate_extension(tickets_json, jira_key)
 
     try:
