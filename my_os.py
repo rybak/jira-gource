@@ -16,7 +16,7 @@ def current_milli_time() -> int:
 
 def read_lines(file_path: str) -> Set[str]:
     try:
-        with open(file_path, 'r') as f:
+        with open(file_path, 'r', encoding='utf-8') as f:
             return set(f.read().splitlines())
     except OSError:
         print("Could not read " + file_path)

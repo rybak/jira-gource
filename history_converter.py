@@ -71,7 +71,7 @@ def convert_history(tickets_json,
     finish = current_milli_time()
     print("\tConverting took {0} ms.".format(finish - start))
     print("Saving names of committers in '{0}'".format(names_file_path))
-    with open(names_file_path, 'w') as f:
+    with open(names_file_path, 'w', encoding='utf-8') as f:
         f.write("\n".join(sorted(names)))
     print("Saved!")
     print(get_filename.cache_info())

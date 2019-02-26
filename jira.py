@@ -255,6 +255,6 @@ def save_cache():
     print("Total number of tickets: {0}".format(len(tickets_json)))
     save_json(tickets_title, tickets_json)
     print("Saving " + missing_file_path)
-    with open(missing_file_path, "w") as f:
+    with open(missing_file_path, "w", encoding='utf-8') as f:
         f.write("\n".join(sorted(missing_tickets)))
     print("Saved!")
