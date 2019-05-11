@@ -85,7 +85,8 @@ separated prefixes in tickets summaries.  Issue type is used to create the file
 extensions in the generated history.  Different file extensions result in
 different colors of nodes in the Gource visualization.  For example: a "Task"
 ticket PROJECT-42 with summary "System: Component: implement feature" will be
-represented by `System/Component/PROJECT-42.Task` in the generated Gource input.
+represented by `PROJECT/System/Component/PROJECT-42.Task` in the generated
+Gource input.
 
 ### Dependencies and compatibility
 
