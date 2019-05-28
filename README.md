@@ -60,6 +60,15 @@ With `config.py` in place, launch jira-gource:
 When the script starts downloading the tickets, it will prompt the user
 for their JIRA password to authenticate with the JIRA server.
 
+**If you are using Jira Cloud:**
+
+- You will receive a 401 code if you try to just authenticate with a password. You can easily use an API token instead.
+- Go to [https://id.atlassian.com/manage/api-tokens](https://id.atlassian.com/manage/api-tokens) and create a new API token.
+- Copy the token to a local file because you will not have access to it after creating it.
+- When prompted for a password, use the API token instead.
+- Reference to the removal can be found here: [https://developer.atlassian.com/cloud/jira/platform/deprecation-notice-basic-auth-and-cookie-based-auth/](https://developer.atlassian.com/cloud/jira/platform/deprecation-notice-basic-auth-and-cookie-based-auth/)
+
+
 ### Output
 
 * `gource-input-<PROJECT>.txt`―JIRA history converted to the custom format
