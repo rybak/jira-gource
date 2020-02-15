@@ -127,6 +127,7 @@ Mirrors
 TODO
 ----
 
+* Automate ticket ranges in `config.py` by checking max ticket key via JQL
 * Download avatars directly from JIRA server using URL of the following form
   `<JIRA-SERVER>/jira/secure/useravatar?size=large&ownerId=fred`
 * Flip boolean logic from `skip_filter` to `changelog_predicate`, to correspond
