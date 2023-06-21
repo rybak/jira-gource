@@ -1,15 +1,15 @@
-JIRA → Gource converter
+Jira → Gource converter
 =======================
 
-[JIRA][JIRA] is issue tracking software application, developed by Atlassian.
+[Jira][JIRA] is issue tracking software application, developed by Atlassian.
 
 [Gource][Gource-homepage] is a version control visualization tool.
 
-This script downloads history of issues from a JIRA server via [REST
+This script downloads history of issues from a Jira server via [REST
 API][JIRA-REST-API] and converts it into [custom format][Gource-custom-format],
-allowing to visualize JIRA history using Gource.
+allowing to visualize Jira history using Gource.
 
-![JIRA -> Gource screenshot](jira-gource.png)
+![Jira -> Gource screenshot](jira-gource.png)
 
 
 Usage
@@ -21,25 +21,25 @@ Usage
 
 The script's input is provided through a `config.py` file.  You need to provide:
 
-* URL to the JIRA server
-* JIRA login to use with REST API
-* `projects` map with config for every JIRA projects to download
+* URL to the Jira server
+* Jira login to use with REST API
+* `projects` map with config for every Jira projects to download
 * Every project config consists of:
-  * Two integers `min_key` and `max_key`—bounds of the issue keys to download
-  * Optional `skip_filter`—a function which takes a changelog entry and returns
-    a boolean—whether or not the changelog entry should be skipped in the
+  * Two integers `min_key` and `max_key` – bounds of the issue keys to download
+  * Optional `skip_filter` – a function which takes a changelog entry and returns
+    a boolean – whether or not the changelog entry should be skipped in the
     output.  Use `None`, if you do not want to define a `skip_filter`.
-  * `skip_dates`—a set of dates, which you wish to skip in the output.
+  * `skip_dates` – a set of dates, which you wish to skip in the output.
     Suggestions for dates to skip:
 
-      * workflow transition—when all tickets have one field updated
-      * big assignee transition—when a lot of tickets are reassigned
+      * workflow transition – when all tickets have one field updated
+      * big assignee transition – when a lot of tickets are reassigned
 
     These kinds of changes touch a lot of tickets and thus make for a bad
-    visualization of JIRA history.  Use `set()` (empty set) if you do not want to
+    visualization of Jira history.  Use `set()` (empty set) if you do not want to
     skip any changelog entries.
 
-  * Optional `sections_extension`—a function to extend (or completely change)
+  * Optional `sections_extension` – a function to extend (or completely change)
     the default "fake folder" path for tickets.
   * By default, script only downloads ticket's summary and changelog.  To make
     an interesting `sections_extension` function, you might need some other
@@ -58,7 +58,7 @@ With `config.py` in place, launch jira-gource:
     $ python generate_gource.py
 
 When the script starts downloading the tickets, it will prompt the user
-for their JIRA password to authenticate with the JIRA server.
+for their Jira password to authenticate with the Jira server.
 
 **If you are using Jira Cloud:**
 
@@ -74,7 +74,7 @@ will not have access to it after creating it.
 
 ### Output
 
-* `gource-input-<PROJECT>.txt`―JIRA history converted to the custom format
+* `gource-input-<PROJECT>.txt` – Jira history converted to the custom format
   used by Gource.  This file can be used by Gource directly, for example:
 
       $ gource gource-input-JRASERVER.txt
@@ -82,16 +82,16 @@ will not have access to it after creating it.
   For more details about using Gource, see [documentation][Gource-github]
   on github.
 
-* `names.txt`—list of JIRA users who appeared in the history of downloaded
+* `names.txt` – list of Jira users who appeared in the history of downloaded
   tickets.  This list can be used to download the photos to use with Gource's
   `--user-image-dir` option.
-* `json_dump/<ID>-tickets.json`—cache of downloaded tickets.  Delete
+* `json_dump/<ID>-tickets.json` – cache of downloaded tickets.  Delete
   this file if you want to re-download the tickets on the next launch.
-* `missing-tickets.txt`―list of tickets, for which JIRA has returned
+* `missing-tickets.txt`―list of tickets, for which Jira has returned
   [HTTP response code 404](https://en.wikipedia.org/wiki/HTTP_404), which
   would be skipped on the next launch of the script.
 
-JIRA tickets do not have any inherent structure similar to a codebase in a
+Jira tickets do not have any inherent structure similar to a codebase in a
 filesystem.  Script attempts to generate a pseudo folder structure from colon
 separated prefixes in tickets summaries.  Issue type is used to create the file
 extensions in the generated history.  Different file extensions result in
@@ -102,10 +102,10 @@ Gource input.
 
 ### Dependencies and compatibility
 
-* [requests](http://python-requests.org) library—to talk to a JIRA server
+* [requests](http://python-requests.org) library – to talk to a Jira server
   via REST API
 * jira-gource uses Python 3 features and is not Python 2 compatible.
-* jira-gource has only been tested with [JIRA version 7.1.6][JIRA-REST-API],
+* jira-gource has only been tested with [Jira version 7.1.6][JIRA-REST-API],
   but is probably compatible with all 7.\* versions.
 
 
@@ -128,7 +128,7 @@ TODO
 ----
 
 * Automate ticket ranges in `config.py` by checking max ticket key via JQL
-* Download avatars directly from JIRA server using URL of the following form
+* Download avatars directly from Jira server using URL of the following form
   `<JIRA-SERVER>/jira/secure/useravatar?size=large&ownerId=fred`
 * Flip boolean logic from `skip_filter` to `changelog_predicate`, to correspond
   to the first parameter of Python's `filter` builtin.
