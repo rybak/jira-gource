@@ -65,6 +65,11 @@ def download_issue(issue_key: str, fields):
                     # go into while True again, ask for password one more time
                     continue
                 if r.status_code == 403:
+                    if r.text.__contains__("You do not have the permission to see the specified issue"): 
+                        print("this issue is corrupted (you have no permission to view it)")
+                        print(r.text)
+                        missing_tickets.add(issue_key)
+                        break
                     print("Need to enter CAPTCHA in the web JIRA interface")
                     reset_auth()
                     continue
