@@ -1,6 +1,7 @@
 from datetime import date
 from configlib import *
 
+# user name can be empty or with any value when use token authentification for jira server (token works without login)
 my_user_name = "johnsmith"
 jira_url = "https://jira.atlassian.com"
 

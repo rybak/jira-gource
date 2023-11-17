@@ -26,7 +26,7 @@ def get_auth():
     if auth is None:
         print('url: {0}'.format(config.jira_url))
         print('login: {0}'.format(config.my_user_name))
-        my_pass = getpass(prompt="jira pass:")
+        my_pass = getpass(prompt="jira pass or token:")
         auth = (config.my_user_name, my_pass)
     return auth
 
@@ -61,6 +61,11 @@ def download_issue(issue_key: str, fields):
                 print("Download failed for ticket {}".format(issue_key))
                 if r.status_code == 401:
                     print("Wrong password")
+                    if rest_session.auth:
+                        rest_session.auth = None
+                        rest_session.headers["Authorization"] = 'Bearer {}'.format(auth[1])
+                        print("try to use Bearer token authorization")
+                        continue
                     reset_auth()
                     # go into while True again, ask for password one more time
                     continue
