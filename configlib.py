@@ -76,6 +76,29 @@ def get_compound_custom_field(issue_json, field_key: str,
     return _get_compound_field(issue_json, field_key, default_value,
                                several_name, 'value')
 
+def get_raw_custom_field(issue_json, field_key: str,
+                              default_value: str = None,
+                              multiple_value: str = None) -> str:
+    """Get a raw value from a custom plugin field of an issue.
+    for example:
+    "customfield_10000": [
+					"com.atlassian.greenhopper.service..@6c5f4a91[id=9129,rapidViewId=1432,state=CLOSED,name= Name 1,startDate=2021-11-22T14:03:00.000+03:00,endDate=2021-12-06T14:03:00.000+03:00,completeDate=2021-12-07T11:08:56.178+03:00,activatedDate=2021-11-22T16:42:48.614+03:00,sequence=8164,goal=some description about a goal,autoStartStop=false]",
+					"com.atlassian.greenhopper.service..@44220ba2[id=9206,rapidViewId=1432,state=CLOSED,name= name 2,startDate=2021-12-06T18:00:00.000+03:00,endDate=2021-12-20T18:00:00.000+03:00,completeDate=2021-12-21T13:16:54.613+03:00,activatedDate=2021-12-07T11:09:33.366+03:00,sequence=8343,goal=finish client functional,autoStartStop=false]"
+				]
+
+    :param issue_json:
+        The JSON object to examine, which represents one issue (ticket),
+        returned by method `issue` of JIRA REST API.
+    :param field_key:
+        JSON key of the custom field.
+    :param default_value:
+        String to return, when the field is absent or its value is not defined.
+    :param multiple_value:
+        String to return, when the field has more than one value, if None - then return first value.
+    """
+    return_first_value = multiple_value == None
+    return _get_compound_field(issue_json, field_key, default_value, multiple_value, return_first_value = return_first_value)
+
 
 def is_field_change(changelog_entry, field_key: str) -> bool:
     """Check if changelog entry contains field value change.
@@ -111,11 +134,12 @@ def _get_field(issue_json, field_key: str, default_value: str = None,
 
 def _get_compound_field(issue_json, field_key: str, default_value: str = None,
                         several_name: str = "Several",
-                        subscript: str = None) -> str:
+                        subscript: str = None,
+                        return_first_value: bool = False) -> str:
     field = _extract_field(issue_json, field_key)
     if field is None:
         return default_value
-    if len(field) == 1:
+    if len(field) == 1 or (return_first_value and len(field) > 0):
         if subscript:
             return field[0][subscript]
         return field[0]
