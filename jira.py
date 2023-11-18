@@ -7,6 +7,8 @@ import json
 from datetime import datetime
 import dateutil.parser as iso
 from typing import List
+import os
+
 
 from my_json import load_json, save_json
 from my_os import read_lines
@@ -36,6 +38,16 @@ def reset_auth():
     auth = None
 
 
+def _authorization_failed():
+    print("Wrong password")
+    if rest_session.auth:
+        rest_session.auth = None
+        rest_session.headers["Authorization"] = 'Bearer {}'.format(auth[1])
+        print("try to use Bearer token authorization")
+    else:
+        reset_auth()
+
+
 def init_session() -> None:
     if auth is not None:
         return
@@ -60,13 +72,7 @@ def download_issue(issue_key: str, fields):
                 print(r)
                 print("Download failed for ticket {}".format(issue_key))
                 if r.status_code == 401:
-                    print("Wrong password")
-                    if rest_session.auth:
-                        rest_session.auth = None
-                        rest_session.headers["Authorization"] = 'Bearer {}'.format(auth[1])
-                        print("try to use Bearer token authorization")
-                        continue
-                    reset_auth()
+                    _authorization_failed()
                     # go into while True again, ask for password one more time
                     continue
                 if r.status_code == 403:
@@ -93,6 +99,59 @@ def download_issue(issue_key: str, fields):
             time.sleep(5)
             break
     return result
+
+
+def save_user_photo(user_name: str, photo_urls):
+    if user_name == None or len(photo_urls) == 0:
+       print('{} has no avatars'.format(user_name))
+       return
+   
+    directory_path = 'user_image_dir'
+    if os.path.exists(directory_path) == False:
+        os.makedirs(directory_path, exist_ok=True)
+    path_to_avatar_file = '{}/{}.png'.format(directory_path, user_name)
+    if os.path.exists(path_to_avatar_file):
+       return
+   
+    best_avatar_key = sorted(photo_urls.keys(), reverse=True)[0]
+    avatar_url = photo_urls[best_avatar_key]
+    print('{} {} {}'.format(user_name, best_avatar_key, avatar_url))
+
+    print("Downloading: {}".format(avatar_url))
+    while True:
+        try:
+            # session is initialized lazily to avoid asking for password if
+            # all issues are already downloaded
+            init_session()
+            r = rest_session.get(avatar_url)
+            if JIRA_DEBUG:
+                pretty_print(r.json())
+            if r.status_code != 200:
+                print(r)
+                print("Download failed for avatar user {} {}".format(user_name, avatar_url))
+                if r.status_code == 401:
+                    _authorization_failed()
+                    # go into while True again, ask for password one more time
+                    continue
+                if r.status_code == 403:
+                    print("Need to enter CAPTCHA in the web JIRA interface")
+                    reset_auth()
+                    continue
+                if r.status_code == 404:
+                    print("No user avatar {} {}".format(user_name, avatar_url))
+                break
+            else:
+                print("Request successful: " + r.url)
+                with open(path_to_avatar_file, 'wb') as f:
+                    f.write(r.content)
+                
+                break  # whatever, still can return the json
+        except requests.exceptions.ConnectionError as ce:
+            print("Connection error: {}".format(ce))
+            print("You might need to define 'verify' in config.py.")
+            print("Current value: config.verify =", config.verify)
+            time.sleep(5)
+            break
 
 
 def pretty_print(json_obj):
@@ -236,6 +295,7 @@ def download_project(project_id: str):
         _put_history(tickets_json, key, filtered_history(tickets_json, key, entry_predicate))
 
     tickets_to_process = []
+    processed_user_avatars = []
     for i in range(min_key, max_key):
         key = get_key_str(project_id, i)
         if key not in tickets_json:
@@ -245,6 +305,15 @@ def download_project(project_id: str):
             print("Ticket : " + key)
             pretty_print(issue_json)
         tickets_to_process.append(key)
+
+        issue_history = _get_orig_history(tickets_json, key)
+        user_avatars = list(map(lambda h: (h['author']['displayName'], h['author']['avatarUrls']), issue_history))
+        for (user_name, photo_urls) in user_avatars:
+            if user_name in processed_user_avatars:
+                continue
+            save_user_photo(user_name, photo_urls)
+            processed_user_avatars.append(user_name)
+        
 
     project_changes = []
     projects[project_id] = project_changes

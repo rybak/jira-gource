@@ -1,6 +1,7 @@
 
 # generated and other user related data
-json_dump
+json_dump/
+user_image_dir/
 config.py
 gource-input.txt
 missing-tickets.txt
