@@ -194,9 +194,11 @@ def clear_key(tickets_json, k):
 
 def filtered_history(tickets_json, jira_key: str, p) -> List:
     issue_history = _get_orig_history(tickets_json, jira_key)
+    issue_json = get_issue_json(tickets_json, jira_key)
+
     old_len = len(issue_history)
     # automated transitions of issues, e.g. by Bitbucket, do not have author
-    filtered = list(filter(lambda h: 'author' in h and p(h), issue_history))
+    filtered = list(filter(lambda h: 'author' in h and p(h, issue_json), issue_history))
     new_len = len(filtered)
     if new_len < old_len:
         print("Removed {0} changelog entries for ticket {1}".format(
@@ -244,18 +246,18 @@ def download_project(project_id: str):
     skip_filter = project_config['skip_filter']
     if len(skip_dates) == 0:
         if skip_filter is None:
-            def entry_predicate(changelog_entry):
+            def entry_predicate(changelog_entry, issue_json):
                 return True
         else:
-            def entry_predicate(changelog_entry):
-                return not skip_filter(changelog_entry)
+            def entry_predicate(changelog_entry, issue_json):
+                return not skip_filter(changelog_entry, issue_json)
     else:
         if skip_filter is None:
-            def entry_predicate(changelog_entry):
+            def entry_predicate(changelog_entry, issue_json):
                 return is_good_date(skip_dates, changelog_entry)
         else:
-            def entry_predicate(changelog_entry):
-                return is_good_date(skip_dates, changelog_entry) and (not skip_filter(changelog_entry))
+            def entry_predicate(changelog_entry, issue_json):
+                return is_good_date(skip_dates, changelog_entry) and (not skip_filter(changelog_entry, issue_json))
 
     # config dependent
     min_key = project_config['min_key']
