@@ -100,6 +100,12 @@ ticket PROJECT-42 with summary "System: Component: implement feature" will be
 represented by `PROJECT/System/Component/PROJECT-42.Task` in the generated
 Gource input.
 
+### Alternative way to build hierarchy via fixVersion
+
+By default hierarchy of ticket (path) builded by **_jira components_** value and **_section_** (part of summary split by `:`, _details [here](https://github.com/rybak/jira-gource/blob/00acf0c78265eb9492339185e710359264e5e2d5/history_converter.py#L25C5-L28C61)_)
+
+But what if we want to see history project through it evalution by release/fix version? So then [check this](FIX-VERSION-HIERARCHY-CONFIG.md)
+
 ### Dependencies and compatibility
 
 * [requests](http://python-requests.org) library – to talk to a Jira server
