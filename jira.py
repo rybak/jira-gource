@@ -39,7 +39,6 @@ def reset_auth():
 
 
 def _authorization_failed():
-    print("Wrong password")
     if rest_session.auth:
         rest_session.auth = None
         rest_session.headers["Authorization"] = 'Bearer {}'.format(auth[1])
@@ -72,6 +71,7 @@ def download_issue(issue_key: str, fields):
                 print(r)
                 print("Download failed for ticket {}".format(issue_key))
                 if r.status_code == 401:
+                    print("Wrong password")
                     _authorization_failed()
                     # go into while True again, ask for password one more time
                     continue
@@ -81,8 +81,9 @@ def download_issue(issue_key: str, fields):
                         print(r.text)
                         missing_tickets.add(issue_key)
                         break
+                    
                     print("Need to enter CAPTCHA in the web JIRA interface")
-                    reset_auth()
+                    _authorization_failed()
                     continue
                 if r.status_code == 404:
                     print("No issue {}".format(issue_key))
@@ -334,7 +335,7 @@ def download_projects(project_ids: List[str]):
 def save_cache():
     # store all the tickets
     print("Total number of tickets: {0}".format(len(tickets_json)))
-    save_json(tickets_title, tickets_json)
+    save_json(tickets_title, tickets_json, True)
     print("Saving " + missing_file_path)
     with open(missing_file_path, "w", encoding='utf-8') as f:
         f.write("\n".join(sorted(missing_tickets)))
