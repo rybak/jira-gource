@@ -1,6 +1,7 @@
 from datetime import date
 from configlib import *
 
+# user name can be empty or with any value when use token authentification for jira server (token works without login)
 my_user_name = "johnsmith"
 jira_url = "https://jira.atlassian.com"
 
@@ -10,19 +11,24 @@ jira_url = "https://jira.atlassian.com"
 verify = True
 
 
-def skip_filter(changelog_entry) -> bool:
+def skip_filter(changelog_entry, issue_json) -> bool:
     """
     Predicate to tell whether or not specified changelog entry should be
     skipped.
 
     :param changelog_entry:
         The changelog entry of an issue to examine.
+    :param issue_json
+        JSON object of a ticket, as per GET "issue" request of JIRA's REST API.
     :returns:
         A boolean, True to skip entry, False to keep it.
     """
+
+    isTask = get_jira_field(issue_json, "issuetype") == "Task"
+    
     # this skip_filter skips any changelog entry which changes Workflow of
     # a ticket
-    return is_field_change(changelog_entry, 'Workflow')
+    return is_field_change(changelog_entry, 'Workflow') or isTask
 
 
 # Specify a way to extend the default sections of a ticket

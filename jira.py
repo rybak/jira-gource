@@ -7,6 +7,8 @@ import json
 from datetime import datetime
 import dateutil.parser as iso
 from typing import List
+import os
+
 
 from my_json import load_json, save_json
 from my_os import read_lines
@@ -26,7 +28,7 @@ def get_auth():
     if auth is None:
         print('url: {0}'.format(config.jira_url))
         print('login: {0}'.format(config.my_user_name))
-        my_pass = getpass(prompt="jira pass:")
+        my_pass = getpass(prompt="jira pass or token:")
         auth = (config.my_user_name, my_pass)
     return auth
 
@@ -34,6 +36,16 @@ def get_auth():
 def reset_auth():
     global auth
     auth = None
+
+
+def _authorization_failed():
+    print("Wrong password")
+    if rest_session.auth:
+        rest_session.auth = None
+        rest_session.headers["Authorization"] = 'Bearer {}'.format(auth[1])
+        print("try to use Bearer token authorization")
+    else:
+        reset_auth()
 
 
 def init_session() -> None:
@@ -60,11 +72,15 @@ def download_issue(issue_key: str, fields):
                 print(r)
                 print("Download failed for ticket {}".format(issue_key))
                 if r.status_code == 401:
-                    print("Wrong password")
-                    reset_auth()
+                    _authorization_failed()
                     # go into while True again, ask for password one more time
                     continue
                 if r.status_code == 403:
+                    if r.text.__contains__("You do not have the permission to see the specified issue"): 
+                        print("this issue is corrupted (you have no permission to view it)")
+                        print(r.text)
+                        missing_tickets.add(issue_key)
+                        break
                     print("Need to enter CAPTCHA in the web JIRA interface")
                     reset_auth()
                     continue
@@ -83,6 +99,59 @@ def download_issue(issue_key: str, fields):
             time.sleep(5)
             break
     return result
+
+
+def save_user_photo(user_name: str, photo_urls):
+    if user_name == None or len(photo_urls) == 0:
+       print('{} has no avatars'.format(user_name))
+       return
+   
+    directory_path = 'user_image_dir'
+    if os.path.exists(directory_path) == False:
+        os.makedirs(directory_path, exist_ok=True)
+    path_to_avatar_file = '{}/{}.png'.format(directory_path, user_name)
+    if os.path.exists(path_to_avatar_file):
+       return
+   
+    best_avatar_key = sorted(photo_urls.keys(), reverse=True)[0]
+    avatar_url = photo_urls[best_avatar_key]
+    print('{} {} {}'.format(user_name, best_avatar_key, avatar_url))
+
+    print("Downloading: {}".format(avatar_url))
+    while True:
+        try:
+            # session is initialized lazily to avoid asking for password if
+            # all issues are already downloaded
+            init_session()
+            r = rest_session.get(avatar_url)
+            if JIRA_DEBUG:
+                pretty_print(r.json())
+            if r.status_code != 200:
+                print(r)
+                print("Download failed for avatar user {} {}".format(user_name, avatar_url))
+                if r.status_code == 401:
+                    _authorization_failed()
+                    # go into while True again, ask for password one more time
+                    continue
+                if r.status_code == 403:
+                    print("Need to enter CAPTCHA in the web JIRA interface")
+                    reset_auth()
+                    continue
+                if r.status_code == 404:
+                    print("No user avatar {} {}".format(user_name, avatar_url))
+                break
+            else:
+                print("Request successful: " + r.url)
+                with open(path_to_avatar_file, 'wb') as f:
+                    f.write(r.content)
+                
+                break  # whatever, still can return the json
+        except requests.exceptions.ConnectionError as ce:
+            print("Connection error: {}".format(ce))
+            print("You might need to define 'verify' in config.py.")
+            print("Current value: config.verify =", config.verify)
+            time.sleep(5)
+            break
 
 
 def pretty_print(json_obj):
@@ -125,9 +194,11 @@ def clear_key(tickets_json, k):
 
 def filtered_history(tickets_json, jira_key: str, p) -> List:
     issue_history = _get_orig_history(tickets_json, jira_key)
+    issue_json = get_issue_json(tickets_json, jira_key)
+
     old_len = len(issue_history)
     # automated transitions of issues, e.g. by Bitbucket, do not have author
-    filtered = list(filter(lambda h: 'author' in h and p(h), issue_history))
+    filtered = list(filter(lambda h: 'author' in h and p(h, issue_json), issue_history))
     new_len = len(filtered)
     if new_len < old_len:
         print("Removed {0} changelog entries for ticket {1}".format(
@@ -175,18 +246,18 @@ def download_project(project_id: str):
     skip_filter = project_config['skip_filter']
     if len(skip_dates) == 0:
         if skip_filter is None:
-            def entry_predicate(changelog_entry):
+            def entry_predicate(changelog_entry, issue_json):
                 return True
         else:
-            def entry_predicate(changelog_entry):
-                return not skip_filter(changelog_entry)
+            def entry_predicate(changelog_entry, issue_json):
+                return not skip_filter(changelog_entry, issue_json)
     else:
         if skip_filter is None:
-            def entry_predicate(changelog_entry):
+            def entry_predicate(changelog_entry, issue_json):
                 return is_good_date(skip_dates, changelog_entry)
         else:
-            def entry_predicate(changelog_entry):
-                return is_good_date(skip_dates, changelog_entry) and (not skip_filter(changelog_entry))
+            def entry_predicate(changelog_entry, issue_json):
+                return is_good_date(skip_dates, changelog_entry) and (not skip_filter(changelog_entry, issue_json))
 
     # config dependent
     min_key = project_config['min_key']
@@ -226,6 +297,7 @@ def download_project(project_id: str):
         _put_history(tickets_json, key, filtered_history(tickets_json, key, entry_predicate))
 
     tickets_to_process = []
+    processed_user_avatars = []
     for i in range(min_key, max_key):
         key = get_key_str(project_id, i)
         if key not in tickets_json:
@@ -235,6 +307,15 @@ def download_project(project_id: str):
             print("Ticket : " + key)
             pretty_print(issue_json)
         tickets_to_process.append(key)
+
+        issue_history = _get_orig_history(tickets_json, key)
+        user_avatars = list(map(lambda h: (h['author']['displayName'], h['author']['avatarUrls']), issue_history))
+        for (user_name, photo_urls) in user_avatars:
+            if user_name in processed_user_avatars:
+                continue
+            save_user_photo(user_name, photo_urls)
+            processed_user_avatars.append(user_name)
+        
 
     project_changes = []
     projects[project_id] = project_changes
