@@ -81,7 +81,7 @@ def is_field_change(changelog_entry, field_key: str) -> bool:
     """Check if changelog entry contains field value change.
 
     :param changelog_entry:
-        Changelog item to examime.
+        Changelog item to examine.
     :param field_key:
         Field to check.
     :return:
