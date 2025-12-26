@@ -7,6 +7,7 @@ import json
 from datetime import datetime
 import dateutil.parser as iso
 from typing import List
+from tqdm import tqdm
 
 from my_json import load_json, save_json
 from my_os import read_lines
@@ -195,7 +196,7 @@ def download_project(project_id: str):
     fields = ','.join(default_fields.union(set(extra_fields)))
 
     # Download of tickets
-    for i in range(min_key, max_key):
+    for i in tqdm(range(min_key, max_key), desc=project_id):
         key = get_key_str(project_id, i)
         if key in missing_tickets:
             print("Skipping missing ticket {}".format(key))
@@ -245,6 +246,11 @@ def download_project(project_id: str):
 
 
 def download_projects(project_ids: List[str]):
+    total_tickets = 0
+    for project_id in project_ids:
+        project_config = config.projects[project_id]
+        total_tickets += project_config['max_key'] - project_config['min_key']
+    print(f"Total tickets to process: {total_tickets}")
     for project_id in project_ids:
         download_project(project_id)
     return projects, tickets_json

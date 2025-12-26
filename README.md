@@ -11,6 +11,33 @@ allowing to visualize Jira history using Gource.
 
 ![Jira -> Gource screenshot](jira-gource.png)
 
+Quick Start
+-----------
+
+1.  Install the required Python packages:
+    ```bash
+    pip install -r requirements.txt
+    ```
+2.  Copy the `config.sample.py` file to `config.py`:
+    ```bash
+    cp config.sample.py config.py
+    ```
+3.  Edit `config.py` to match your Jira server and project settings.
+4.  Run the script:
+    ```bash
+    python generate_gource.py
+    ```
+
+Installation
+------------
+
+This script requires Python 3.
+
+The necessary Python packages are listed in `requirements.txt`. They can be installed using `pip`:
+
+```bash
+pip install -r requirements.txt
+```
 
 Usage
 -----
@@ -99,15 +126,6 @@ different colors of nodes in the Gource visualization.  For example: a "Task"
 ticket PROJECT-42 with summary "System: Component: implement feature" will be
 represented by `PROJECT/System/Component/PROJECT-42.Task` in the generated
 Gource input.
-
-### Dependencies and compatibility
-
-* [requests](http://python-requests.org) library – to talk to a Jira server
-  via REST API
-* jira-gource uses Python 3 features and is not Python 2 compatible.
-* jira-gource has only been tested with [Jira version 7.1.6][JIRA-REST-API],
-  but is probably compatible with all 7.\* versions.
-
 
 Contributing
 ------------
