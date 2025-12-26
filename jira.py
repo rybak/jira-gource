@@ -26,7 +26,7 @@ def get_auth():
     if auth is None:
         print('url: {0}'.format(config.jira_url))
         print('login: {0}'.format(config.my_user_name))
-        my_pass = getpass(prompt="jira pass:")
+        my_pass = getpass(prompt="Jira pass:")
         auth = (config.my_user_name, my_pass)
     return auth
 
